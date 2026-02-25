@@ -1,0 +1,19 @@
+/* simulator/style.css 
+   このファイルは難読化せず、そのまま読み込んでも解析されにくいため分離のみでOK
+*/
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+    --ac: #b59453;
+    --acl: #fdf8ef;
+    --bg: #f1f5f9;
+    --bdr: #e2e8f0;
+    --txt: #1e293b;
+    --mut: #64748b;
+}
+/* 以降、sss.htmlの<style>タグ内の記述をすべてここに移動 */
+body {
+    font-family: "Noto Sans JP", sans-serif;
+    background: var(--bg);
+    color: var(--txt);
+}
+/* ...省略... */
