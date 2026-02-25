@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>採用戦略シミュレーター v4.4.2</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ac:#b59453;--acl:#fdf8ef;--bg:#f1f5f9;--bdr:#e2e8f0;--txt:#1e293b;--mut:#64748b}
+html{height:100%;overflow:hidden}
+body{height:100%;overflow:hidden;font-family:"Noto Sans JP",sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+.wrap{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.hdr{flex:0 0 auto;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.hdr h1{font-size:17px;font-weight:700;letter-spacing:-.02em;margin-top:2px}
+.hdr p{font-size:11px;color:#94a3b8;margin-top:2px}
+.vtag{font-size:9px;font-weight:700;color:#eab308;margin-bottom:2px}
+.stag{font-size:9px;letter-spacing:.1em;color:#94a3b8;border:1px solid rgba(255,255,255,.15);padding:1px 7px;border-radius:3px;display:inline-block;margin-bottom:3px}
+.body{flex:1 1 0;display:flex;overflow:hidden;min-height:0}
+.left{flex:0 0 58%;height:100%;overflow-y:auto;padding:18px 18px 60px 26px;scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
+.left::-webkit-scrollbar{width:4px}
+.left::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+.right{flex:0 0 42%;height:100%;overflow:hidden;padding:18px 26px 18px 14px;display:flex;flex-direction:column;gap:14px}
+.card{background:#fff;border-radius:11px;box-shadow:0 2px 10px rgba(0,0,0,.06);border:1px solid var(--bdr);padding:16px;margin-bottom:13px}
+.card-dark{background:#0f172a;border-radius:11px;box-shadow:0 4px 20px rgba(0,0,0,.3);padding:20px;flex:0 0 auto}
+.card-chart{background:#fff;border-radius:11px;box-shadow:0 2px 10px rgba(0,0,0,.06);border:1px solid var(--bdr);padding:16px;flex:1 1 0;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.card h2{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--bdr);padding-bottom:9px;margin-bottom:13px}
+.sbadge{background:var(--ac);color:#fff;width:20px;height:20px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.ssub{font-size:10px;color:var(--mut);font-weight:400}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.sp2{grid-column:1/-1}
+.fl{display:block;font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+select,input[type="number"],textarea{width:100%;border:2px solid #f1f5f9;padding:8px 10px;border-radius:7px;outline:none;font-family:inherit;font-size:13px;color:var(--txt);background:#fff;transition:border-color .2s}
+select:focus,input[type="number"]:focus,textarea:focus{border-color:#94a3b8}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=number]{-moz-appearance:textfield}
+.iw{position:relative}
+.iw .pfx{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px;pointer-events:none}
+.iw .sfx{position:absolute;right:9px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:12px;pointer-events:none}
+.iw input{padding-left:21px}
+.iw.sfm input{padding-right:24px}
+.salary-block.hide{display:none}
+.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:9px}
+.pi input[type="radio"]{display:none}
+.pi label{display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid var(--bdr);border-radius:9px;padding:8px 3px;cursor:pointer;transition:all .2s;text-align:center;background:#fff;min-height:74px}
+.pi input[type="radio"]:checked+label{border-color:var(--ac);background:var(--acl);box-shadow:0 0 0 3px rgba(181,148,83,.15)}
+.pi label:hover{border-color:var(--ac);background:var(--acl)}
+.pd{font-size:10px;font-weight:700;color:var(--mut)}
+.pp{font-size:12px;font-weight:900;color:var(--txt);margin-top:3px}
+.pu{font-size:9px;color:var(--mut);margin-top:2px}
+.pds{font-size:9px;font-weight:700;color:#10b981;margin-top:2px}
+.pb2{font-size:9px;color:#cbd5e1;margin-top:2px}
+.psum{background:#f8fafc;border-radius:7px;padding:8px 11px;display:flex;gap:16px;flex-wrap:wrap;font-size:11px}
+.psi span{display:block}
+.psi span:first-child{font-size:9px;color:var(--mut)}
+.psi span:last-child{font-weight:900}
+.opt{border:2px solid var(--bdr);border-radius:9px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:all .2s;cursor:pointer;margin-bottom:7px;user-select:none}
+.opt:last-of-type{margin-bottom:0}
+.opt.on{border-color:var(--ac);background:var(--acl)}
+.opt .ol{display:flex;align-items:flex-start;gap:9px;flex:1;pointer-events:none}
+.opt .oname{font-weight:700;font-size:13px}
+.opt .odesc{font-size:10px;color:var(--mut);margin-top:2px}
+.opt .oprice{font-weight:700;white-space:nowrap;font-size:13px;pointer-events:none}
+.opt .ounit{font-size:10px;font-weight:400;color:var(--mut)}
+.cc{width:15px;height:15px;accent-color:var(--ac);flex-shrink:0;margin-top:2px;pointer-events:none}
+.opt-wr{border-color:#fde68a;background:rgba(254,249,195,.25)}
+.opt-wr.on{border-color:var(--ac);background:var(--acl)}
+.tbar{background:#0f172a;border-radius:9px;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;margin-top:9px}
+.tl{color:#fff;font-weight:700;font-size:13px}
+.ts{color:#64748b;font-size:10px;margin-top:1px}
+.tv{color:#eab308;font-size:19px;font-weight:900}
+.srow{display:flex;gap:7px;align-items:center;margin-bottom:7px}
+.srow input{flex:1;min-width:70px}
+.srm{background:none;border:none;color:#94a3b8;font-size:17px;cursor:pointer;padding:3px 6px;border-radius:5px;transition:all .2s;flex-shrink:0}
+.srm:hover{color:#ef4444;background:#fee2e2}
+.add-btn{font-size:11px;font-weight:700;color:#fff;background:var(--ac);border:none;padding:5px 10px;border-radius:7px;cursor:pointer}
+.add-btn:hover{opacity:.85}
+.snum{font-size:50px;font-weight:900;color:#eab308;line-height:1;letter-spacing:-.03em}
+.pbbg{background:rgba(255,255,255,.1);height:7px;border-radius:4px;overflow:hidden;margin:10px 0 15px}
+.pbfill{height:100%;background:linear-gradient(90deg,#b45309,#eab308);border-radius:4px;transition:width .55s cubic-bezier(.4,0,.2,1)}
+.lvl{font-size:11px;font-weight:700}
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:9px;border-top:1px solid rgba(255,255,255,.08);padding-top:11px;margin-top:3px}
+.ii .il{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+.ii .iv{font-size:13px;font-weight:700;margin-top:2px}
+.ii.r{text-align:right}
+.rw{position:relative;flex:1 1 0;min-height:0}
+.abox{background:#f8fafc;border-radius:7px;border-left:3px solid var(--ac);padding:10px 12px;margin-top:10px;flex:0 0 auto}
+.abox .al{font-size:11px;font-weight:700;margin-bottom:4px}
+.abox .ac{font-size:11px;color:var(--mut);line-height:1.65}
+@keyframes npop{0%{opacity:.3;transform:scale(.93)}100%{opacity:1;transform:scale(1)}}
+.npop{animation:npop .3s ease-out forwards}
+
+/* アクションボタン（1ボタンに統合） */
+.action-bar{margin-top:12px}
+.btn-main{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(135deg,#b59453,#d4a853);color:#fff;border:none;border-radius:9px;padding:13px 18px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;line-height:1.3}
+.btn-main:hover{opacity:.88;transform:translateY(-1px)}
+.btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-icon{font-size:16px;flex-shrink:0}
+
+/* モーダル */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:14px;width:min(460px,94vw);padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.25);position:relative}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:6px}
+.modal .mdesc{font-size:12px;color:var(--mut);margin-bottom:18px;line-height:1.6}
+.modal label{display:block;font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;margin-top:12px}
+.modal label:first-of-type{margin-top:0}
+.modal input{width:100%;border:2px solid #e2e8f0;padding:9px 11px;border-radius:7px;font-family:inherit;font-size:13px;color:var(--txt);outline:none;transition:border-color .2s}
+.modal input:focus{border-color:#b59453}
+.modal-btns{display:flex;gap:8px;margin-top:20px}
+.modal-cancel{flex:1;background:#f1f5f9;border:none;border-radius:8px;padding:10px;font-family:inherit;font-size:13px;font-weight:700;color:var(--mut);cursor:pointer}
+.modal-ok{flex:2;background:linear-gradient(135deg,#b59453,#d4a853);border:none;border-radius:8px;padding:10px;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;transition:opacity .2s}
+.modal-ok:hover{opacity:.88}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:#94a3b8;cursor:pointer;line-height:1}
+.gas-note{font-size:10px;color:#94a3b8;margin-top:10px;padding:8px 10px;background:#f8fafc;border-radius:6px;line-height:1.5}
+
+/* トースト */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#0f172a;color:#fff;padding:11px 22px;border-radius:9px;font-size:13px;font-weight:700;opacity:0;transition:all .35s;z-index:2000;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* =====================================================
+   スマホ・タブレット対応（PC表示は一切変更なし）
+===================================================== */
+@media(max-width:800px){
+  /* 基本レイアウトリセット */
+  html,body{overflow:auto;height:auto}
+  .wrap{height:auto;overflow:visible;min-height:100vh}
+
+  /* ヘッダー：縦並びに */
+  .hdr{flex-direction:column;align-items:flex-start;gap:10px;padding:14px 16px}
+  .hdr h1{font-size:14px}
+  .hdr p{font-size:10px}
+  .vtag{font-size:9px}
+  .hdr > div:last-child{width:100%}
+  .hdr > div:last-child > div:first-child{flex-wrap:wrap;gap:6px;width:100%}
+  .hdr > div:last-child > div:first-child a,
+  .hdr > div:last-child > div:first-child button{font-size:10px;padding:4px 10px}
+
+  /* ボディ：縦並び・フルスクロール */
+  .body{flex-direction:column;overflow:visible;height:auto}
+
+  /* 左カラム（入力エリア） */
+  .left{
+    flex:none;width:100%;height:auto;
+    overflow:visible;
+    padding:12px 14px 20px 14px;
+    order:2;
+  }
+
+  /* 右カラム（スコア・チャート）を上に表示 */
+  .right{
+    flex:none;width:100%;height:auto;
+    overflow:visible;
+    padding:12px 14px 0 14px;
+    order:1;
+    gap:12px;
+  }
+
+  /* スコアカード */
+  .card-dark{padding:16px}
+  .snum{font-size:40px}
+  .ig{grid-template-columns:1fr 1fr;gap:7px}
+  .ii .iv{font-size:12px}
+
+  /* チャートカード：固定高さ */
+  .card-chart{
+    flex:none;
+    min-height:0;
+    height:auto;
+    padding:14px;
+  }
+  .rw{
+    position:relative;
+    height:220px;
+    flex:none;
+  }
+  .abox{margin-top:8px}
+  .abox .ac{font-size:10px}
+
+  /* カード全般 */
+  .card{padding:14px;margin-bottom:10px}
+  .card h2{font-size:12px;margin-bottom:10px;padding-bottom:7px}
+
+  /* 2カラムグリッドを1カラムに */
+  .g2{grid-template-columns:1fr}
+  .sp2{grid-column:1}
+
+  /* 掲載プラン：5列→折り返し */
+  .pgrid{
+    grid-template-columns:repeat(3,1fr);
+    gap:5px;
+  }
+  .pi label{min-height:64px;padding:6px 2px}
+  .pd{font-size:9px}
+  .pp{font-size:11px}
+  .pu,.pds,.pb2{font-size:8px}
+
+  /* オプション */
+  .opt{padding:8px 10px;gap:7px}
+  .opt .oname{font-size:12px}
+  .opt .odesc{font-size:9px}
+  .opt .oprice{font-size:12px;white-space:normal;text-align:right}
+
+  /* 合計バー */
+  .tbar{flex-direction:column;align-items:flex-start;gap:4px;padding:10px 12px}
+  .tv{font-size:20px}
+
+  /* 送信ボタン */
+  .btn-main{font-size:13px;padding:14px}
+
+  /* モーダル */
+  .modal{padding:20px 18px;width:94vw}
+  .modal h3{font-size:14px}
+  .modal-btns{flex-direction:column}
+  .modal-cancel,.modal-ok{flex:none;width:100%}
+
+  /* プランサマリー */
+  .psum{gap:10px}
+  .psi span:first-child{font-size:8px}
+  .psi span:last-child{font-size:12px}
+
+  /* select・input */
+  select,input[type="number"],textarea{font-size:14px;padding:9px 10px}
+}
+
+/* タブレット中間サイズ微調整 */
+@media(min-width:601px) and (max-width:800px){
+  .pgrid{grid-template-columns:repeat(5,1fr)}
+  .g2{grid-template-columns:1fr 1fr}
+  .sp2{grid-column:1/-1}
+  .rw{height:260px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hdr">
+  <!-- 左側：タイトルエリア -->
+  <div>
+    <div class="stag">STRATEGIC ANALYSIS</div>
+    <div class="vtag">v4.4.2 PRO — 都道府県別最低賃金（2025年度）＋立地タイプ対応</div>
+    <h1>採用戦略プラン診断・見積シミュレーター</h1>
+    <p>職種特性 &times; 適正賃金乖離率 &times; 掲載戦略による精密算出モデル</p>
+  </div>
+
+  <!-- 右側：ボタン・情報エリア -->
+  <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+    <!-- ボタン群（3つ） -->
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <a href="idc.html" style="text-decoration: none; border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 5px 12px; border-radius: 20px; font-weight: bold; transition: all 0.2s; font-size: 11px; white-space: nowrap;" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+        トップへ戻る
+      </a>
+      <a href="index.html" style="text-decoration: none; border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 5px 12px; border-radius: 20px; font-weight: bold; transition: all 0.2s; font-size: 11px; white-space: nowrap;" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+        WILLホーム
+      </a>
+      <a href="URLをここに記入" style="text-decoration: none; background-color: #f97316; color: #fff; padding: 5px 14px; border-radius: 20px; font-weight: bold; transition: all 0.2s; font-size: 11px; white-space: nowrap; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);" onmouseover="this.style.backgroundColor='#ea580c'" onmouseout="this.style.backgroundColor='#f97316'">
+        お問い合わせ
+      </a>
+    </div>
+    <!-- 日付 -->
+    <div style="font-size: 9px; color: #94a3b8; white-space: nowrap">Update: <span id="todayDate"></span></div>
+  </div>
+</header>
+<div class="body">
+<div class="left">
+
+  <div class="card">
+    <h2><span class="sbadge">01</span>店舗・エリア基本情報</h2>
+    <div class="g2">
+      <div class="sp2"><label class="fl">募集業態</label>
+        <select id="businessType" onchange="sim()">
+          <option value='{"popularity":4.8,"difficulty":2.5}'>カフェ・喫茶店</option>
+          <option value='{"popularity":4.2,"difficulty":3.5}'>ピッツェリア・イタリアン</option>
+          <option value='{"popularity":4.5,"difficulty":4.0}'>パン屋・ベーカリー</option>
+          <option value='{"popularity":2.8,"difficulty":4.2}'>居酒屋・ダイニングバー</option>
+          <option value='{"popularity":3.2,"difficulty":2.8}'>ファーストフード・ファミレス</option>
+          <option value='{"popularity":2.5,"difficulty":4.5}'>ラーメン・中華料理</option>
+          <option value='{"popularity":3.0,"difficulty":3.8}'>焼肉・焼き鳥</option>
+          <option value='{"popularity":3.5,"difficulty":4.8}'>寿司・和食（専門店）</option>
+          <option value='{"popularity":4.0,"difficulty":3.8}'>ホテル・旅館内レストラン</option>
+        </select>
+      </div>
+      <div><label class="fl">都道府県</label>
+        <select id="areaLevel" onchange="sim()">
+          <optgroup label="近畿">
+            <option value='{"rate":1177,"diff":2.0}' selected>大阪府（¥1,177）</option>
+            <option value='{"rate":1122,"diff":1.7}'>京都府（¥1,122）</option>
+            <option value='{"rate":1116,"diff":1.7}'>兵庫県（¥1,116）</option>
+            <option value='{"rate":1080,"diff":1.4}'>滋賀県（¥1,080）</option>
+            <option value='{"rate":1051,"diff":1.3}'>奈良県（¥1,051）</option>
+            <option value='{"rate":1045,"diff":1.2}'>和歌山県（¥1,045）</option>
+          </optgroup>
+          <optgroup label="関東">
+            <option value='{"rate":1226,"diff":2.5}'>東京都（¥1,226）</option>
+            <option value='{"rate":1225,"diff":2.4}'>神奈川県（¥1,225）</option>
+            <option value='{"rate":1141,"diff":1.8}'>埼玉県（¥1,141）</option>
+            <option value='{"rate":1140,"diff":1.8}'>千葉県（¥1,140）</option>
+            <option value='{"rate":1074,"diff":1.4}'>茨城県（¥1,074）</option>
+            <option value='{"rate":1068,"diff":1.4}'>栃木県（¥1,068）</option>
+            <option value='{"rate":1063,"diff":1.3}'>群馬県（¥1,063）</option>
+          </optgroup>
+          <optgroup label="東海・中部">
+            <option value='{"rate":1140,"diff":1.8}'>愛知県（¥1,140）</option>
+            <option value='{"rate":1097,"diff":1.5}'>静岡県（¥1,097）</option>
+            <option value='{"rate":1087,"diff":1.4}'>三重県（¥1,087）</option>
+            <option value='{"rate":1065,"diff":1.3}'>岐阜県（¥1,065）</option>
+            <option value='{"rate":1062,"diff":1.3}'>富山県（¥1,062）</option>
+            <option value='{"rate":1061,"diff":1.3}'>長野県（¥1,061）</option>
+            <option value='{"rate":1054,"diff":1.3}'>石川県（¥1,054）</option>
+            <option value='{"rate":1053,"diff":1.3}'>福井県（¥1,053）</option>
+            <option value='{"rate":1052,"diff":1.3}'>山梨県（¥1,052）</option>
+            <option value='{"rate":1050,"diff":1.2}'>新潟県（¥1,050）</option>
+          </optgroup>
+          <optgroup label="北海道・東北">
+            <option value='{"rate":1075,"diff":1.4}'>北海道（¥1,075）</option>
+            <option value='{"rate":1038,"diff":1.2}'>宮城県（¥1,038）</option>
+            <option value='{"rate":1033,"diff":1.1}'>福島県（¥1,033）</option>
+            <option value='{"rate":1032,"diff":1.1}'>山形県（¥1,032）</option>
+            <option value='{"rate":1031,"diff":1.1}'>岩手県（¥1,031）</option>
+            <option value='{"rate":1031,"diff":1.1}'>秋田県（¥1,031）</option>
+            <option value='{"rate":1029,"diff":1.1}'>青森県（¥1,029）</option>
+          </optgroup>
+          <optgroup label="中国・四国">
+            <option value='{"rate":1085,"diff":1.4}'>広島県（¥1,085）</option>
+            <option value='{"rate":1047,"diff":1.2}'>岡山県（¥1,047）</option>
+            <option value='{"rate":1046,"diff":1.2}'>徳島県（¥1,046）</option>
+            <option value='{"rate":1043,"diff":1.2}'>山口県（¥1,043）</option>
+            <option value='{"rate":1036,"diff":1.1}'>香川県（¥1,036）</option>
+            <option value='{"rate":1033,"diff":1.1}'>愛媛県（¥1,033）</option>
+            <option value='{"rate":1033,"diff":1.1}'>島根県（¥1,033）</option>
+            <option value='{"rate":1030,"diff":1.1}'>鳥取県（¥1,030）</option>
+            <option value='{"rate":1023,"diff":1.0}'>高知県（¥1,023）</option>
+          </optgroup>
+          <optgroup label="九州・沖縄">
+            <option value='{"rate":1057,"diff":1.3}'>福岡県（¥1,057）</option>
+            <option value='{"rate":1035,"diff":1.1}'>大分県（¥1,035）</option>
+            <option value='{"rate":1034,"diff":1.1}'>熊本県（¥1,034）</option>
+            <option value='{"rate":1031,"diff":1.1}'>長崎県（¥1,031）</option>
+            <option value='{"rate":1030,"diff":1.1}'>佐賀県（¥1,030）</option>
+            <option value='{"rate":1026,"diff":1.0}'>鹿児島県（¥1,026）</option>
+            <option value='{"rate":1023,"diff":1.0}'>宮崎県（¥1,023）</option>
+            <option value='{"rate":1023,"diff":1.0}'>沖縄県（¥1,023）</option>
+          </optgroup>
+        </select>
+      </div>
+      <div><label class="fl">立地タイプ</label>
+        <select id="locationBias" onchange="sim()">
+          <option value="1.22">繁華街・ターミナル駅周辺</option>
+          <option value="1.12">準繁華街・主要駅近く</option>
+          <option value="1.00" selected>住宅街・一般エリア</option>
+          <option value="0.92">郊外・ロードサイド</option>
+          <option value="0.84">山間部・過疎エリア</option>
+        </select>
+      </div>
+      <div><label class="fl">プランについて</label>
+        <select id="planIntent">
+          <option value="same">前回と同じプランの金額体で</option>
+          <option value="consult">プランは相談したい</option>
+        </select>
+      </div>
+      <div class="sp2">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+          <label class="fl" style="margin:0">必要な店舗名</label>
+          <button class="add-btn" onclick="addStore()">＋ 店舗を追加</button>
+        </div>
+        <div id="storeList"></div>
+        <p style="font-size:10px;color:#94a3b8;margin-top:5px">※ オープニング店舗はオープン時期もご記入ください</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="sbadge">02</span>募集背景・緊急度 <span class="ssub">採用難易度スコアに反映</span></h2>
+    <div class="g2">
+      <div class="sp2"><label class="fl">募集フェーズ</label>
+        <select id="recruitPhase" onchange="sim()">
+          <option value='{"label":"欠員補充","modifier":0.0}'>既存スタッフの退職に伴う欠員補充</option>
+          <option value='{"label":"人員強化","modifier":0.05}'>業務量増加・売上好調による人員強化</option>
+          <option value='{"label":"体制強化・育成","modifier":0.08}'>組織体制強化・次世代育成のための増員</option>
+          <option value='{"label":"リニューアル再スタート","modifier":0.12}'>店舗リニューアル・業態変更に伴う再スタート</option>
+          <option value='{"label":"新規立ち上げ","modifier":0.18}'>新規出店・事業拡大に伴う立ち上げメンバー募集</option>
+          <option value='{"label":"短期・期間限定","modifier":0.15}'>季節限定・期間限定の短期募集</option>
+        </select>
+      </div>
+      <div><label class="fl">いつまでに採用したいか</label>
+        <select id="deadline" onchange="sim()">
+          <option value='{"label":"1か月以内","urgencyBonus":-8}'>1か月以内（急ぎ）</option>
+<option value='{"label":"2〜3か月以内","urgencyBonus":0}'>2〜3か月以内（標準）</option>
+<option value='{"label":"急ぎではない","urgencyBonus":5}'>急ぎではないが体制強化</option>
+        </select>
+      </div>
+      <div><label class="fl">募集職種</label>
+        <select id="roleType" onchange="sim()">
+          <option value='{"role":"サービス・ホール","popularity":4.2,"difficulty":2.2}'>サービス・ホール</option>
+          <option value='{"role":"調理スタッフ","popularity":3.0,"difficulty":3.8}'>調理スタッフ</option>
+          <option value='{"role":"調理補助・調理見習い","popularity":3.5,"difficulty":2.5}'>調理補助・調理見習い</option>
+          <option value='{"role":"店長候補・マネージャー","popularity":2.5,"difficulty":4.8}'>店長候補・マネージャー</option>
+          <option value='{"role":"料理長候補 (シェフ・板長など)","popularity":2.0,"difficulty":5.0}'>料理長候補（シェフ・板長など）</option>
+          <option value='{"role":"パティシエ / パン職人","popularity":4.5,"difficulty":4.2}'>パティシエ / パン職人</option>
+          <option value='{"role":"ソムリエ / バーテンダー / バリスタ","popularity":4.7,"difficulty":4.0}'>ソムリエ / バーテンダー / バリスタ</option>
+          <option value='{"role":"レセプション・フロント","popularity":4.3,"difficulty":3.2}'>レセプション・フロント</option>
+          <option value='{"role":"洗い場・皿洗い","popularity":1.5,"difficulty":1.8}'>洗い場・皿洗い</option>
+          <option value='{"role":"デリバリー・配達スタッフ","popularity":3.2,"difficulty":3.0}'>デリバリー・配達スタッフ</option>
+          <option value='{"role":"本部スタッフ・SV","popularity":3.8,"difficulty":4.5}'>本部スタッフ・SV</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="sbadge">03</span>採用条件</h2>
+    <div class="g2">
+      <div class="sp2"><label class="fl">メイン募集となる採用者の雇用形態</label>
+        <select id="targetType" onchange="onTargetChange()">
+          <option value="part">アルバイト・パート</option>
+          <option value="full">正社員（一般）</option>
+          <option value="pro">ハイクラス</option>
+        </select>
+      </div>
+      <div><label class="fl">採用予定人数 &mdash; 社員</label><div class="iw sfm"><input type="number" id="hiringFull" value="0" min="0" oninput="onHiringChange()"><span class="sfx">名</span></div></div>
+      <div><label class="fl">採用予定人数 &mdash; バイト</label><div class="iw sfm"><input type="number" id="hiringPart" value="1" min="0" oninput="onHiringChange()"><span class="sfx">名</span></div></div>
+      <div class="sp2 salary-block" id="salaryPartBlock">
+        <label class="fl">提示時給（アルバイト・パート）</label>
+        <div class="iw"><span class="pfx">¥</span><input type="number" id="salaryPart" value="1150" oninput="sim()"></div>
+        <p style="font-size:10px;color:#94a3b8;margin-top:4px">地域最低賃金との乖離率を算出します</p>
+      </div>
+      <div class="sp2 salary-block hide" id="salaryFullBlock">
+        <label class="fl" id="salaryFullLabel">提示月給（正社員）</label>
+        <div class="iw"><span class="pfx">¥</span><input type="number" id="salaryFull" value="260000" oninput="sim()"></div>
+        <p style="font-size:10px;color:#94a3b8;margin-top:4px">地域・職種水準との乖離率を算出します</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="sbadge">04</span>掲載プラン選択 <span class="ssub">長期掲載ほど採用確度・コスト効率が向上します</span></h2>
+    <div class="pgrid">
+      <div class="pi"><input type="radio" name="period" id="p30"  value='{"days":30,"price":19800,"discount":0,"bonus":0}'       checked onchange="sim()"><label for="p30"> <span class="pd">30日</span><span class="pp">¥19,800</span><span class="pu">¥660/日</span><span class="pb2">基本</span></label></div>
+      <div class="pi"><input type="radio" name="period" id="p60"  value='{"days":60,"price":37000,"discount":2600,"bonus":3}'    onchange="sim()"><label for="p60"> <span class="pd">60日</span><span class="pp">¥37,000</span><span class="pu">¥617/日</span><span class="pds">2,600円引</span></label></div>
+      <div class="pi"><input type="radio" name="period" id="p90"  value='{"days":90,"price":54000,"discount":5400,"bonus":5}'    onchange="sim()"><label for="p90"> <span class="pd">90日</span><span class="pp">¥54,000</span><span class="pu">¥600/日</span><span class="pds">5,400円引</span></label></div>
+      <div class="pi"><input type="radio" name="period" id="p180" value='{"days":180,"price":102000,"discount":16800,"bonus":10}' onchange="sim()"><label for="p180"><span class="pd">180日</span><span class="pp">¥102,000</span><span class="pu">¥567/日</span><span class="pds">16,800円引</span></label></div>
+      <div class="pi"><input type="radio" name="period" id="p360" value='{"days":360,"price":190000,"discount":47600,"bonus":15}' onchange="sim()"><label for="p360"><span class="pd">360日</span><span class="pp">¥190,000</span><span class="pu">¥528/日</span><span class="pds">47,600円引</span></label></div>
+    </div>
+    <div class="psum">
+      <div class="psi"><span>掲載料金</span><span>¥<span id="pPrice">19,800</span></span></div>
+      <div class="psi"><span>割引額</span><span style="color:#10b981">¥<span id="pDisc">0</span></span></div>
+      <div class="psi"><span>採用確度ボーナス</span><span style="color:var(--ac)">+<span id="pBonus">0</span>%</span></div>
+      <div class="psi" style="margin-left:auto;text-align:right"><span>正社員・バイト何職種でも</span><span>定額で掲載し放題</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="sbadge">05</span>オプション選択</h2>
+    <!-- 非表示：一覧上位表示 -->
+<div class="opt" id="card_top" onclick="tog('top')" style="display:none">
+    <div class="ol"><input type="checkbox" id="check_top" class="cc"><div><div class="oname">一覧上位表示</div><div class="odesc">検索結果の最上部に表示し、流入を最大化します</div></div></div>
+    <div class="oprice">¥80,000 <span class="ounit">/1週間</span></div>
+</div>
+
+<!-- 非表示：注目求人 -->
+<div class="opt" id="card_feature" onclick="tog('feature')" style="display:none">
+    <div class="ol"><input type="checkbox" id="check_feature" class="cc"><div><div class="oname">注目求人</div><div class="odesc">画像付きの目立つ専用枠に掲載し、視認性を高めます</div></div></div>
+    <div class="oprice">¥40,000 <span class="ounit">/1週間</span></div>
+</div>
+
+<!-- ① 急募掲載（新規追加） -->
+<div class="opt" id="card_urgent" onclick="tog('urgent')">
+    <div class="ol"><input type="checkbox" id="check_urgent" class="cc"><div><div class="oname">急募掲載</div><div class="odesc">急募求人として露出を増やし、応募を促します</div></div></div>
+    <div class="oprice">¥10,000 <span class="ounit">/1件</span></div>
+</div>
+
+<!-- ② 新着表示 -->
+<div class="opt" id="card_new" onclick="tog('new')">
+    <div class="ol"><input type="checkbox" id="check_new" class="cc"><div><div class="oname">新着表示</div><div class="odesc">求人を新着順のトップへ再浮上させます</div></div></div>
+    <div class="oprice">¥15,000 <span class="ounit">/1回</span></div>
+</div>
+
+<!-- ③ 特集掲載 -->
+<div class="opt" id="card_special" onclick="tog('special')">
+    <div class="ol"><input type="checkbox" id="check_special" class="cc"><div><div class="oname">特集掲載</div><div class="odesc">毎週更新のテーマ別特集枠に掲載します</div></div></div>
+    <div class="oprice">¥20,000 <span class="ounit">/1週間</span></div>
+</div>
+
+<!-- ④ スカウトサービス -->
+<div class="opt" id="card_scout" onclick="tog('scout')">
+    <div class="ol"><input type="checkbox" id="check_scout" class="cc"><div><div class="oname">スカウトサービス</div><div class="odesc">条件に合う求職者へ直接アプローチします</div></div></div>
+    <div class="oprice">¥50,000 <span class="ounit">/20通</span></div>
+</div>
+
+<!-- ⑤ プロライター（最下部固定） -->
+<div class="opt opt-wr" id="card_writing" onclick="tog('writing')">
+    <div class="ol"><input type="checkbox" id="check_writing" class="cc"><div><div class="oname">プロライターによる原稿作成</div><div class="odesc">採用訴求力の高い原稿で応募率・期待値が向上します</div></div></div>
+    <div class="oprice">¥10,000 <span class="ounit">/1店舗</span></div>
+</div>
+
+    <div class="tbar"><div><div class="tl">お見積り合計</div><div class="ts">掲載料金 ＋ 選択オプション（税抜）</div></div><div class="tv">¥<span id="totalCost">19,800</span></div></div>
+    <div style="margin-top:13px">
+      <label class="fl">備考・ご要望（自由入力）</label>
+      <textarea id="freeNote" rows="3" placeholder="例：特定の曜日のみ募集、前回の掲載で〇〇があった、など" style="resize:none"></textarea>
+    </div>
+
+    <!-- ▼ 1ボタンに統合 -->
+    <div class="action-bar">
+      <button class="btn-main" id="mainBtn" onclick="openModal()">
+        <span class="btn-icon">📄</span>
+        <span>診断結果を送信し、AIによる詳細分析・見積データをダウンロード</span>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /left -->
+
+<div class="right">
+  <div class="card-dark">
+    <p style="font-size:9px;font-weight:700;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">Simulated Success Rate</p>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:8px">
+      <div id="probDisp" class="snum">0.0%</div>
+      <span id="lvlLabel" class="lvl" style="color:#94a3b8;text-align:right">評価：測定中</span>
+    </div>
+    <div class="pbbg"><div id="pBar" class="pbfill" style="width:0%"></div></div>
+    <div class="ig">
+      <div class="ii"><div class="il">適正給与（推定）</div><div class="iv" style="color:#34d399">¥<span id="idealSalary">—</span></div></div>
+      <div class="ii r"><div class="il">Salary Matching</div><div class="iv" id="matchPct">—</div></div>
+      <div class="ii"><div class="il">募集フェーズ</div><div class="iv" id="phaseLabel" style="font-size:11px;color:#eab308">—</div></div>
+      <div class="ii r"><div class="il">採用希望時期</div><div class="iv" id="dlLabel" style="font-size:11px;color:#94a3b8">—</div></div>
+    </div>
+  </div>
+  <div class="card-chart">
+    <p style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">戦略バランス分析</p>
+    <div class="rw"><canvas id="radarChart"></canvas></div>
+    <div class="abox">
+      <div class="al" id="roleLabel"></div>
+      <div class="ac" id="roleComment"></div>
+    </div>
+  </div>
+</div>
+
+</div></div>
+
+<!-- ===== モーダル（送信 → PDF DL） ===== -->
+<div class="modal-overlay" id="sendModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>📄 診断結果の送信とPDFダウンロード</h3>
+    <p class="mdesc">お名前と連絡先を入力のうえ送信すると、診断結果がPDFでダウンロードされます。</p>
+    <label>お名前 <span style="color:#ef4444">*</span></label>
+    <input type="text" id="senderName" placeholder="例：山田 太郎">
+    <label style="margin-top:10px">電話番号またはメールアドレス <span style="color:#ef4444">*</span></label>
+    <input type="text" id="senderContact" placeholder="例：06-xxxx-xxxx / taro@example.com">
+    <label style="margin-top:10px">店舗名</label>
+    <input type="text" id="senderStore" placeholder="例：梅田本店">
+    <div class="gas-note" id="gasNote"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="modal-ok" id="modalOkBtn" onclick="submitAndDownload()">送信してPDFをDL →</button>
+    </div>
+  </div>
+</div>
+
+<!-- トースト -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =====================================================
+// 設定：Google Apps Script の Web App URL
+// デプロイ後にここを書き換えてください
+// 未設定（YOUR_SCRIPT_ID のまま）の場合は送信をスキップし、直接PDFをDLします
+// =====================================================
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwpBSGECVPPOGseEQqxl7qpoSNssILWmY2FDwPjZbH72U8qC2z1WQhrsRsTNsOvJiaD/exec";
+
+// =====================================================
+let chart, sc = 0;
+let lastSimData = {};
+
+const rdm = {
+  "店長候補・マネージャー":"責任が重く敬遠されがちだが、店舗運営の根幹。経験者の市場価値が高く、引き抜きも多い最難関職種。",
+  "サービス・ホール":"未経験OKの募集が多く、学生やフリーターの応募が最も集まりやすい。ただし接客レベルを求めると難易度は上がる。",
+  "料理長候補 (シェフ・板長など)":"技術・管理能力の両面が必要。絶対数が不足しており、給与条件だけでは動かない層。採用難易度は最大。",
+  "調理スタッフ":"中堅層の需要が高い。労働環境が厳しいイメージがあり、給与感度が非常に高い職種。",
+  "調理補助・調理見習い":"学びたい意欲層が一定数いるため人気は中程度。ハードルは低いが定着率に課題が出やすい。",
+  "パティシエ / パン職人":"憧れの強い職種で人気は高いが、実務経験者の層が薄く専門性が高いため採用は困難。",
+  "ソムリエ / バーテンダー / バリスタ":"人気が集中する職種。専門資格保持者の獲得競争は激しく、ブランド力が採用を左右する。",
+  "レセプション・フロント":"女性層に人気。マナーや語学が必要なため単なるホールより難易度は高い。",
+  "洗い場・皿洗い":"作業の単調さと腰痛リスクから人気は最低クラス。ただし要件が低いため補填はしやすい。",
+  "デリバリー・配達スタッフ":"運転免許が必要で母集団が限られる。需給バランスが常に不安定。",
+  "本部スタッフ・SV":"キャリアアップ先として人気はあるが、現場感覚と数値管理能力の両立が求められ適合者が少ない。"
+};
+
+// =====================================================
+// 初期化
+// =====================================================
+window.onload = function() {
+  // GAS URL 状態をモーダルに反映
+  const note = document.getElementById("gasNote");
+  if (GAS_URL.includes("YOUR_SCRIPT_ID")) {
+    note.textContent = "※ 送信先URLが未設定のため、送信はスキップしてPDFを直接ダウンロードします（仕様確認モード）。";
+    note.style.color = "#f59e0b";
+  } else {
+    note.textContent = "送信後、担当スタッフより確認のご連絡をいたします。";
+    note.style.color = "#64748b";
+  }
+  // サイト更新日Today
+const now = new Date();
+document.getElementById("todayDate").textContent =
+    `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,"0")}.${String(now.getDate()).padStart(2,"0")}`;
+  initChart();
+  addStore();
+  updateSalary();
+  sim();
+};
+
+// =====================================================
+// 店舗追加
+// =====================================================
+function addStore() {
+  sc++;
+  const l = document.getElementById("storeList");
+  const r = document.createElement("div");
+  r.className = "srow";
+  r.id = "sr" + sc;
+  r.innerHTML = `<input type="text" placeholder="店舗名（例：梅田店）" style="flex:1;min-width:70px"><input type="text" placeholder="オープン時期（任意）" style="flex:1;min-width:70px;color:#94a3b8"><button class="srm" onclick="document.getElementById('sr${sc}').remove()">×</button>`;
+  l.appendChild(r);
+}
+
+// =====================================================
+// オプショントグル（.opt 単体で制御。二重発火なし）
+// =====================================================
+function tog(k) {
+  const cb = document.getElementById("check_" + k);
+  const cd = document.getElementById("card_" + k);
+  cb.checked = !cb.checked;
+  cd.classList.toggle("on", cb.checked);
+  sim();
+}
+
+// =====================================================
+// 給与ブロック切替
+// =====================================================
+function updateSalary() {
+  const t  = document.getElementById("targetType").value;
+  const hf = parseInt(document.getElementById("hiringFull").value) || 0;
+  const hp = parseInt(document.getElementById("hiringPart").value) || 0;
+  document.getElementById("salaryPartBlock").classList.toggle("hide", !(t === "part" || hp > 0));
+  document.getElementById("salaryFullBlock").classList.toggle("hide", !((t === "full" || t === "pro") || hf > 0));
+  document.getElementById("salaryFullLabel").innerText = t === "pro" ? "提示月給（ハイクラス）" : "提示月給（正社員）";
+}
+
+function onTargetChange() {
+  const t = document.getElementById("targetType").value;
+  document.getElementById("salaryPart").value = 1150;
+  document.getElementById("salaryFull").value = t === "pro" ? 450000 : 260000;
+  updateSalary();
+  sim();
+}
+
+function onHiringChange() { updateSalary(); sim(); }
+
+function getPeriod() {
+  for (const r of document.getElementsByName("period")) {
+    if (r.checked) return JSON.parse(r.value);
+  }
+  return { days: 30, price: 19800, discount: 0, bonus: 0 };
+}
+
+// =====================================================
+// チャート初期化
+// =====================================================
+function initChart() {
+  chart = new Chart(document.getElementById("radarChart").getContext("2d"), {
+    type: "radar",
+    data: {
+      labels: ["露出度", "待遇魅力", "コスト効率", "スピード", "採用確度"],
+      datasets: [{
+        data: [0, 0, 0, 0, 0],
+        backgroundColor: "rgba(181,148,83,.15)",
+        borderColor: "#b59453",
+        borderWidth: 2,
+        pointBackgroundColor: "#b59453",
+        pointRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 400, easing: "easeInOutQuart" },
+      scales: { r: { min: 0, max: 100, ticks: { display: false }, grid: { color: "rgba(0,0,0,.07)" }, pointLabels: { font: { size: 11, family: "Noto Sans JP" }, color: "#64748b" } } },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// =====================================================
+// シミュレーション本体
+// =====================================================
+function sim() {
+  const biz   = JSON.parse(document.getElementById("businessType").value);
+  const role  = JSON.parse(document.getElementById("roleType").value);
+  const area  = JSON.parse(document.getElementById("areaLevel").value);
+  const tgt   = document.getElementById("targetType").value;
+  const phase = JSON.parse(document.getElementById("recruitPhase").value);
+  const dl    = JSON.parse(document.getElementById("deadline").value);
+  const per   = getPeriod();
+  const hf    = parseInt(document.getElementById("hiringFull").value) || 0;
+  const hp    = parseInt(document.getElementById("hiringPart").value) || 0;
+  const tot   = Math.max(hf + hp, 1);
+  const sp    = parseFloat(document.getElementById("salaryPart").value) || 0;
+  const sf    = parseFloat(document.getElementById("salaryFull").value) || 0;
+  const sal   = tgt === "part" ? sp : sf;
+
+  const ck = {
+    top:     document.getElementById("check_top").checked,
+    feature: document.getElementById("check_feature").checked,
+    urgent:  document.getElementById("check_urgent").checked, // ← 追加
+    scout:   document.getElementById("check_scout").checked,
+    special: document.getElementById("check_special").checked,
+    new:     document.getElementById("check_new").checked,
+    writing: document.getElementById("check_writing").checked
+  };
+
+  document.getElementById("phaseLabel").innerText = phase.label;
+  document.getElementById("dlLabel").innerText     = dl.label;
+  document.getElementById("pPrice").innerText      = per.price.toLocaleString();
+  document.getElementById("pDisc").innerText       = per.discount.toLocaleString();
+  document.getElementById("pBonus").innerText      = per.bonus;
+
+  const bias  = parseFloat(document.getElementById("locationBias").value) || 1.0;
+  const coef  = role.difficulty / role.popularity;
+  // 立地バイアスを適用しつつ、都道府県の最低賃金（area.rate）を下限として保証
+  let ideal   = Math.max(area.rate * bias, area.rate) * (1 + coef * 0.1);
+  if (tgt !== "part") ideal = ideal * 160 * (tgt === "pro" ? 1.6 : 1.3);
+  ideal = Math.round(ideal / 100) * 100;
+  document.getElementById("idealSalary").innerText = ideal.toLocaleString();
+
+  const ratio = sal > 0 ? sal / ideal : 0;
+  const mp    = Math.round(ratio * 100);
+  const mel   = document.getElementById("matchPct");
+  mel.innerText   = sal > 0 ? mp + "%" : "—";
+  mel.style.color = mp >= 100 ? "#34d399" : mp >= 85 ? "#fbbf24" : "#f87171";
+
+  let prob = ((biz.popularity / biz.difficulty) * (role.popularity / role.difficulty) * 20) / area.diff;
+  prob *= Math.pow(ratio > 0 ? ratio : 0.7, 2);
+  prob /= (1 + (tot - 1) * 0.15);
+  prob *= (1 - phase.modifier);
+  prob += dl.urgencyBonus + per.bonus;
+  if (ck.top)     prob += 18;
+  if (ck.feature) prob += 10;
+  if (ck.scout)   prob += (tgt === "part" ? 15 : 25);
+  if (ck.special) prob += 8;
+  if (ck.urgent)  prob += 6;  // ← 追加
+  if (ck.new)     prob += 7;
+  if (ck.writing) prob += 11;
+
+  const fp = Math.min(Math.max(prob, 0), 82).toFixed(1);
+  const de = document.getElementById("probDisp");
+  de.innerText = fp + "%";
+  de.classList.remove("npop");
+  void de.offsetWidth;
+  de.classList.add("npop");
+  document.getElementById("pBar").style.width = fp + "%";
+
+  const ll = document.getElementById("lvlLabel");
+  if (fp < 30)      { ll.innerText = "評価：警戒（要プラン見直し）"; ll.style.color = "#f87171"; }
+  else if (fp < 60) { ll.innerText = "評価：標準（競合に注意）";     ll.style.color = "#fbbf24"; }
+  else              { ll.innerText = "評価：良好（高い期待値）";      ll.style.color = "#34d399"; }
+
+  // 露出度：掲載期間をベース値として設定（30日→30, 60日→42, 90日→52, 180日→65, 360日→78）
+  // オプションで上乗せし、最大100
+  const expBase = Math.round(30 + Math.log(per.days / 30) / Math.log(12) * 48);
+  const exp  = Math.min(expBase + (ck.top ? 45 : 0) + (ck.feature ? 25 : 0) + (ck.new ? 15 : 0) + (ck.special ? 15 : 0), 100);
+  const cost = Math.min(55 + per.bonus * 2 + (per.discount > 0 ? 10 : 0), 100);
+  chart.data.datasets[0].data = [
+
+    // 【露出度】
+    // ベース: 掲載期間（30日→30, 60日→42, 90日→52, 180日→65, 360日→78）
+    // +上乗せ: 一覧上位表示+45 / 注目求人+25 / 新着表示+15 / 特集掲載+15 / 急募掲載+10
+    Math.min(exp + (ck.urgent ? 10 : 0), 100),
+
+    // 【待遇魅力】
+    // 提示給与 ÷ 適正給与（推定）の割合（%）をそのまま反映
+    // 給与未入力時はデフォルト50
+    Math.min(mp > 0 ? mp : 50, 100),
+
+    // 【コスト効率】
+    // ベース55 + 掲載期間ボーナス×2 + 割引適用時+10
+    // ※長期プランほど高くなる
+    cost,
+
+    // 【スピード】
+    // スカウトON→85（最大）
+    // 急募掲載ON→最低65を保証（採用希望時期が「1か月以内」なら55と比較して大きい方）
+    // 両方OFF→採用希望時期「1か月以内」で55 / それ以外35
+    ck.scout ? 85 : (ck.urgent ? Math.max(65, dl.urgencyBonus > 0 ? 55 : 35) : (dl.urgencyBonus > 0 ? 55 : 35)),
+
+    // 【採用確度】
+    // prob計算の最終値（fp）をそのまま反映
+    // ※業態・職種・給与・掲載期間・全オプション・募集フェーズ・採用希望時期が総合的に影響
+    parseFloat(fp)
+];
+  chart.update();
+
+  // 合計計算（urgent を追加）
+const optT = (ck.top ? 80000 : 0) + (ck.feature ? 40000 : 0) + (ck.urgent ? 10000 : 0) + (ck.scout ? 50000 : 0) + (ck.special ? 20000 : 0) + (ck.new ? 15000 : 0) + (ck.writing ? 10000 : 0);
+  const total = per.price + optT;
+  document.getElementById("totalCost").innerText = total.toLocaleString();
+
+  document.getElementById("roleLabel").innerText = `【職種特性: ${role.role}】`;
+  let c = rdm[role.role] || "";
+  if (phase.modifier >= 0.15) c += ` 【${phase.label}】は競合他社も同時期に採用を強化しやすく、母集団の取り合いが激化しやすいフェーズです。`;
+  else if (phase.modifier >= 0.08) c += ` 【${phase.label}】は、求職者への訴求メッセージの明確さが採用結果を左右します。`;
+  if (sal > 0 && mp < 90)  c += ` 提示給与が適正相場の${mp}%に留まっており、競合での苦戦が予想されます。`;
+  if (sal > 0 && mp >= 110) c += ` 相場を大きく上回る給与設定（${mp}%）が強力なフックになります。`;
+  if (per.days >= 90) c += ` ${per.days}日間の長期掲載により接触機会が増加し採用確度が高まります。`;
+  document.getElementById("roleComment").innerText = c;
+
+  // 最新データを保持
+  const bizLabel   = document.getElementById("businessType").selectedOptions[0].text;
+  const areaLabel  = document.getElementById("areaLevel").selectedOptions[0].text
+                   + "／" + document.getElementById("locationBias").selectedOptions[0].text;
+  const roleLabel2 = document.getElementById("roleType").selectedOptions[0].text;
+  const tgtLabel   = document.getElementById("targetType").selectedOptions[0].text;
+  const phaseText  = document.getElementById("recruitPhase").selectedOptions[0].text;
+  const dlText     = document.getElementById("deadline").selectedOptions[0].text;
+
+  const optSelected = [];
+  if (ck.top)     optSelected.push("一覧上位表示 ¥80,000");
+  if (ck.feature) optSelected.push("注目求人 ¥40,000");
+  if (ck.scout)   optSelected.push("スカウトサービス ¥50,000");
+  if (ck.special) optSelected.push("特集掲載 ¥20,000");
+  if (ck.urgent)  optSelected.push("急募掲載 ¥10,000");  // ← 追加
+  if (ck.new)     optSelected.push("新着表示 ¥15,000");
+  if (ck.writing) optSelected.push("プロライター ¥10,000");
+
+  lastSimData = {
+    bizLabel, areaLabel, roleLabel: role.role, roleLabel2, tgtLabel,
+    phaseLabel: phaseText, dlLabel: dlText,
+    hiringFull: hf, hiringPart: hp,
+    salaryPart: sp, salaryFull: sf,
+    idealSalary: ideal.toLocaleString(),
+    salaryMatch: sal > 0 ? mp + "%" : "—",
+    periodLabel: `${per.days}日（¥${per.price.toLocaleString()}）`,
+    options: optSelected.length > 0 ? optSelected.join("、") : "なし",
+    totalCost: "¥" + total.toLocaleString(),
+    successRate: fp + "%",
+    evaluation: ll.innerText,
+    comment: c,
+    freeNote: document.getElementById("freeNote").value
+  };
+}
+
+// =====================================================
+// モーダル開閉
+// =====================================================
+function openModal() {
+  document.getElementById("sendModal").classList.add("show");
+}
+function closeModal() {
+  document.getElementById("sendModal").classList.remove("show");
+}
+
+// =====================================================
+// 送信 → PDF DL（メインフロー）
+// =====================================================
+async function submitAndDownload() {
+  const name    = document.getElementById("senderName").value.trim();
+  const contact = document.getElementById("senderContact").value.trim();
+  const store = document.getElementById("senderStore").value.trim();
+const storeInputs = document.querySelectorAll("#storeList .srow input:first-child");
+const storeListName = storeInputs.length > 0 ? storeInputs[0].value.trim() : "";
+
+  if (!name || !contact) {
+    showToast("⚠️ お名前と連絡先を入力してください");
+    return;
+  }
+
+  const btn = document.getElementById("modalOkBtn");
+  btn.textContent = "処理中…";
+  btn.disabled    = true;
+
+  // lastSimData に送信者情報を追加（スプレッドシート記録用）
+  const payload = {
+    ...lastSimData,
+    senderName: name,
+    senderContact: contact,
+    senderStore: store,
+    storeListName: storeListName,  // ← 追加
+    submittedAt: new Date().toLocaleString("ja-JP")
+};
+
+  // GAS 送信（URL が設定されている場合のみ）
+  const gasConfigured = !GAS_URL.includes("YOUR_SCRIPT_ID");
+  if (gasConfigured) {
+    try {
+      const form = new FormData();
+      Object.entries(payload).forEach(([k, v]) => form.append(k, String(v)));
+      await fetch(GAS_URL, { method: "POST", body: form, mode: "no-cors" });
+    } catch (e) {
+      // no-cors の場合エラーは握りつぶし（GAS側で受信確認）
+      console.warn("GAS send error:", e);
+    }
+  }
+
+  closeModal();
+
+  // PDF 生成
+  await generatePDF(payload);
+
+  btn.textContent = "送信してPDFをDL →";
+  btn.disabled    = false;
+
+  showToast(gasConfigured ? "✅ 送信完了・PDFをダウンロードしました" : "📄 PDFをダウンロードしました（仕様確認モード）");
+}
+
+// =====================================================
+// PDF生成（jsPDF による真のPDF出力）
+// A4 一枚に収まるよう設計
+// =====================================================
+async function generatePDF(payload) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+  const now        = new Date();
+  const ts         = now.toLocaleString("ja-JP", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit" });
+  const dateFile   = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}`;
+  const d          = payload;
+
+  // --- 色・サイズ定数 ---
+  const W = 210, H = 297;
+  const mx = 14; // 左右余白
+  const cw = W - mx * 2; // コンテンツ幅
+
+  // jsPDF は日本語フォント埋め込みが複雑なため、
+  // Unicode 文字は画像ベースでなくテキストとして描画します。
+  // ※ jsPDF 標準フォントは ASCII のみ対応のため、
+  //    日本語テキストはcanvas→imageで埋め込みます。
+  // → より実用的な方法として HTML→PDF にします（iframe + print API）
+
+  // jsPDF 単体では日本語フォント埋め込みに外部フォントファイルが必要なため、
+  // ここでは「A4サイズHTMLを新しいウィンドウで開き、印刷ダイアログを自動起動して
+  // PDF保存を誘導」する形式を採用します（最も互換性が高い手法）
+
+  // --- HTML テンプレート生成 ---
+  const html = buildPDFHtml(d, ts);
+  const w = window.open("", "_blank", "width=900,height=700");
+  if (!w) {
+    // ポップアップブロックされた場合はダウンロードにフォールバック
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `採用戦略診断書_${dateFile}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+    return;
+  }
+  w.document.write(html);
+  w.document.close();
+  // 少し待ってから印刷ダイアログを起動
+  setTimeout(() => { try { w.print(); } catch(e){} }, 800);
+}
+
+// =====================================================
+// PDF用HTMLテンプレート（A4一枚・簡略ヘッダー・タイムスタンプ入り）
+// =====================================================
+function buildPDFHtml(d, ts) {
+  const evalColor = d.evaluation.includes("良好") ? "#10b981" : d.evaluation.includes("標準") ? "#f59e0b" : "#ef4444";
+
+  return `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>採用戦略診断書</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Noto Sans JP",sans-serif;color:#1e293b;font-size:11px;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{size:A4 portrait;margin:10mm 12mm}
+  /* ヘッダー（簡略版） */
+  .hdr{display:flex;justify-content:space-between;align-items:center;border-bottom:2.5px solid #b59453;padding-bottom:7px;margin-bottom:11px}
+  .hdr-title{font-size:16px;font-weight:900;letter-spacing:-.01em;color:#0f172a}
+  .hdr-sub{font-size:9px;color:#64748b;margin-top:2px}
+  .hdr-right{text-align:right;font-size:9px;color:#64748b;line-height:1.6}
+  .hdr-right strong{color:#b59453;font-weight:700}
+  /* スコアブロック */
+  .score-wrap{display:flex;gap:10px;margin-bottom:10px}
+  .score-box{background:#0f172a;border-radius:8px;padding:12px 18px;display:flex;align-items:center;gap:16px;flex:1}
+  .score-num{font-size:44px;font-weight:900;color:#eab308;line-height:1;letter-spacing:-.03em}
+  .score-info{}
+  .score-info h2{font-size:12px;font-weight:700;color:#fff;margin-bottom:2px}
+  .score-info p{font-size:9px;color:#94a3b8;margin-bottom:5px}
+  .eval-badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;background:${evalColor};color:#fff}
+  .meta-box{background:#f8fafc;border-radius:8px;padding:12px 14px;flex:0 0 auto;width:160px;display:flex;flex-direction:column;justify-content:center;gap:7px}
+  .meta-row .ml{font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+  .meta-row .mv{font-size:12px;font-weight:700;margin-top:1px}
+  /* セクション */
+  .sections{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  .section{border:1px solid #e2e8f0;border-radius:7px;padding:9px 11px}
+  .section.full{grid-column:1/-1}
+  .section h3{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid #f1f5f9}
+  .row{display:flex;gap:6px;margin-bottom:5px;align-items:baseline}
+  .row:last-child{margin-bottom:0}
+  .lbl{font-size:9px;color:#64748b;min-width:100px;flex-shrink:0;font-weight:700}
+  .val{font-size:11px;font-weight:600}
+  .ac{color:#b59453;font-weight:900}
+  /* 合計バー */
+  .total-bar{background:#0f172a;border-radius:6px;padding:10px 13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .total-bar .tl{font-size:11px;font-weight:700;color:#fff}
+  .total-bar .ts{font-size:9px;color:#64748b}
+  .total-bar .tv{font-size:18px;font-weight:900;color:#eab308}
+  /* コメント */
+  .comment-box{background:#fdf8ef;border-left:3px solid #b59453;padding:8px 11px;border-radius:0 6px 6px 0;font-size:10px;line-height:1.7;color:#475569}
+  /* フッター */
+  .footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:8.5px;color:#94a3b8}
+  /* 送信者情報 */
+  .sender-bar{background:#f1f5f9;border-radius:6px;padding:7px 11px;display:flex;gap:20px;margin-bottom:9px;font-size:9px}
+  .sender-bar .si .sl{color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .sender-bar .si .sv{font-weight:700;color:#1e293b;margin-top:1px}
+  @media print{body{font-size:11px}}
+</style>
+</head>
+<body>
+
+<!-- ヘッダー（簡略） -->
+<div class="hdr">
+  <div>
+    <div class="hdr-title">採用戦略プラン 診断・見積書</div>
+    <div class="hdr-sub">職種特性 × 適正賃金乖離率 × 掲載戦略による精密算出モデル</div>
+  </div>
+  <div class="hdr-right">
+    <div><strong>発行日時（タイムスタンプ）</strong></div>
+    <div>${ts}</div>
+  </div>
+</div>
+
+${(d.storeListName || d.senderStore) ? `
+<div style="margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #e2e8f0">
+  <span style="font-size:18px;font-weight:900;color:#0f172a;letter-spacing:-.01em">${d.storeListName || d.senderStore} 様</span>
+</div>` : ""}
+
+<!-- 送信者情報バー -->
+<div class="sender-bar">
+  <div class="si"><div class="sl">お名前</div><div class="sv">${d.senderName}</div></div>
+  <div class="si"><div class="sl">連絡先</div><div class="sv">${d.senderContact}</div></div>
+  ${d.senderStore ? `<div class="si"><div class="sl">店舗名</div><div class="sv">${d.senderStore}</div></div>` : ""}
+</div>
+
+<!-- スコアブロック -->
+<div class="score-wrap">
+  <div class="score-box">
+    <div class="score-num">${d.successRate}</div>
+    <div class="score-info">
+      <h2>採用成功確度スコア</h2>
+      <p>シミュレーション結果（最大82%）</p>
+      <span class="eval-badge">${d.evaluation}</span>
+    </div>
+  </div>
+  <div class="meta-box">
+    <div class="meta-row"><div class="ml">適正給与（推定）</div><div class="mv ac">¥${d.idealSalary}</div></div>
+    <div class="meta-row"><div class="ml">Salary Matching</div><div class="mv">${d.salaryMatch}</div></div>
+  </div>
+</div>
+
+<!-- セクション群（2カラム） -->
+<div class="sections">
+  <div class="section">
+    <h3>店舗・募集基本情報</h3>
+    <div class="row"><span class="lbl">募集業態</span><span class="val">${d.bizLabel}</span></div>
+    <div class="row"><span class="lbl">募集地域</span><span class="val">${d.areaLabel}</span></div>
+    <div class="row"><span class="lbl">募集職種</span><span class="val">${d.roleLabel2 || d.roleLabel}</span></div>
+    <div class="row"><span class="lbl">雇用形態</span><span class="val">${d.tgtLabel}</span></div>
+    <div class="row"><span class="lbl">採用予定（社員）</span><span class="val">${d.hiringFull} 名</span></div>
+    <div class="row"><span class="lbl">採用予定（バイト）</span><span class="val">${d.hiringPart} 名</span></div>
+  </div>
+  <div class="section">
+    <h3>募集背景・条件</h3>
+    <div class="row"><span class="lbl">募集フェーズ</span><span class="val">${d.phaseLabel}</span></div>
+    <div class="row"><span class="lbl">採用希望時期</span><span class="val">${d.dlLabel}</span></div>
+    <div class="row"><span class="lbl">掲載プラン</span><span class="val">${d.periodLabel}</span></div>
+    <div class="row"><span class="lbl">選択オプション</span><span class="val" style="font-size:9px">${d.options}</span></div>
+  </div>
+</div>
+
+<!-- 合計バー -->
+<div class="total-bar">
+  <div><div class="tl">お見積り合計（税抜）</div><div class="ts">掲載料金 ＋ 選択オプション</div></div>
+  <div class="tv">${d.totalCost}</div>
+</div>
+
+<!-- 戦略コメント -->
+<div class="section full" style="margin-bottom:8px">
+  <h3>職種特性・採用戦略コメント</h3>
+  <div class="comment-box">${d.comment || "—"}</div>
+  ${d.freeNote ? `<div style="margin-top:7px;font-size:9px;font-weight:700;color:#94a3b8;margin-bottom:3px">備考・ご要望</div><div class="comment-box">${d.freeNote}</div>` : ""}
+</div>
+
+<!-- フッター -->
+<div class="footer">
+  <span>本資料はシミュレーターによる試算です。確定見積は担当スタッフよりご提案します。</span>
+  <span>採用戦略プラン診断シミュレーター v4.4.0</span>
+</div>
+</body>
+</html>`;
+}
+
+// =====================================================
+// トースト通知
+// =====================================================
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.innerText = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3500);
+}
+</script>
+</body>
+</html>
