@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>求人飲食店ドットコム プラン紹介 v2.1.0</title>
+    <title>求人飲食店ドットコム プラン紹介 v2.1.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,34 +14,133 @@
         .tab-content.active { display: block; }
         .tab-button.active { background-color: white; color: #047857; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
         .tab-button:not(.active) { color: rgba(5, 150, 105, 0.7); }
+
+        #contact-modal { display: none; }
+        #contact-modal.active { display: flex; }
+
+        .sub-menu { display: none; }
+        .sub-menu.open { display: block; }
+
+        /* =====================================================
+           ヒーロー スライドショー
+           
+           【画像の追加・削除方法】
+           JavaScript の SLIDESHOW_IMAGES 配列にURLを追加・削除するだけでOKです。
+           CSSは一切変更不要です。
+        ===================================================== */
+
+        /* スライドショーのコンテナ */
+        #hero-slideshow {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        /* 各スライド（画像レイヤー） */
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out; /* フェードの速さ（秒） */
+        }
+
+        /* アクティブなスライドだけ表示 */
+        .hero-slide.is-active {
+            opacity: 1;
+        }
+
+        /* 画像の上に重ねるオーバーレイ（文字可読性を確保） */
+        #hero-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            /* グラデーション：上下を少し暗くして中央はやや薄め */
+            background: linear-gradient(
+                to bottom,
+                rgba(5, 46, 22, 0.55) 0%,
+                rgba(5, 46, 22, 0.40) 40%,
+                rgba(5, 46, 22, 0.55) 100%
+            );
+        }
+
+        /* ヒーロー内のコンテンツを前面に出す */
+        #hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* テキストシャドウで文字をさらに読みやすく */
+        #hero-content h1 {
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+        }
+        #hero-content p {
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+        }
+
+        /* スライドインジケーター（ドット） */
+        #slideshow-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            gap: 8px;
+        }
+        .slide-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 9999px;
+            background: rgba(255,255,255,0.45);
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, width 0.3s;
+            padding: 0;
+        }
+        .slide-dot.is-active {
+            background: white;
+            width: 24px; /* アクティブは横長に */
+        }
     </style>
 </head>
 <body class="min-h-screen bg-emerald-50/30 text-slate-800 pb-20">
 
-    <!-- Header Section -->
+    <!-- Header -->
     <header class="bg-white border-b border-emerald-100 sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-emerald-600 rounded-lg flex items-center justify-center shadow-emerald-200 shadow-lg">
+                <div class="w-9 h-9 bg-emerald-600 rounded-lg flex items-center justify-center shadow-emerald-200 shadow-lg shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-lg font-bold tracking-tight text-slate-900">求人飲食店ドットコム 掲載・運用サポートデスク</span>
-                    <span class="text-[10px] font-mono text-emerald-600 font-bold bg-emerald-50 px-1.5 rounded leading-none py-0.5 w-fit">v2.1.0 (HTML版)</span>
+                    <span class="text-base md:text-lg font-bold tracking-tight text-slate-900 leading-tight">求人飲食店ドットコム 掲載・運用サポートデスク</span>
+                    <span class="text-[10px] font-mono text-emerald-600 font-bold bg-emerald-50 px-1.5 rounded leading-none py-0.5 w-fit">v2.1.2</span>
                 </div>
             </div>
-            <button class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-full font-bold transition duration-200 text-sm shadow-md shadow-orange-200">
-                お問い合わせ
-            </button>
+            <div class="flex items-center gap-2">
+                <a href="#" class="border border-slate-300 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-full font-bold transition duration-200 text-xs whitespace-nowrap">トップへ戻る</a>
+                <a href="https://willinc.co.jp/" class="border border-slate-300 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-full font-bold transition duration-200 text-xs whitespace-nowrap">WILLホーム</a>
+                <button onclick="openModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-full font-bold transition duration-200 text-xs shadow-md shadow-orange-100 whitespace-nowrap">資料ダウンロード</button>
+            </div>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="bg-emerald-700 py-16 text-white text-center px-4 relative overflow-hidden">
-        <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-emerald-600 rounded-full opacity-20 blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-64 h-64 bg-emerald-400 rounded-full opacity-20 blur-3xl"></div>
-        
-        <div class="relative z-10">
+    <!-- =====================================================
+         Hero Section（スライドショー版）
+    ===================================================== -->
+    <section class="relative py-16 text-white text-center px-4 overflow-hidden min-h-[380px] flex items-center justify-center">
+
+        <!-- スライドショー背景（JSで動的に生成） -->
+        <div id="hero-slideshow"></div>
+
+        <!-- 暗めのオーバーレイ（文字可読性確保） -->
+        <div id="hero-overlay"></div>
+
+        <!-- コンテンツ（文字・バッジ） -->
+        <div id="hero-content" class="w-full">
             <div class="inline-flex items-center gap-2 bg-emerald-800/50 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold mb-6 border border-emerald-500/30">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C10.9 14.51 12 14.8 15 15"/></svg>
                 <span>2026年 第1四半期 パックプラン拡充中</span>
@@ -53,7 +152,6 @@
             <p class="text-emerald-50 text-base md:text-lg opacity-90 mb-10 max-w-2xl mx-auto leading-relaxed">
                 求職者の90%が経験者。即戦力採用に特化したプラットフォーム。
             </p>
-            
             <div class="flex flex-wrap justify-center gap-3">
                 <div class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl flex items-center gap-2 text-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -65,156 +163,81 @@
                 </div>
             </div>
         </div>
+
+        <!-- ページネーションドット -->
+        <div id="slideshow-dots"></div>
     </section>
 
-    <!-- Quick Action Buttons Section -->
+    <!-- Quick Action Buttons -->
     <section class="max-w-6xl mx-auto px-4 -mt-8 relative z-20">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-            <!-- 1. ご利用中のお客様用リンク -->
-            <a href="https://surveymars.com/q/iZ9s9CfEc" class="bg-white hover:bg-orange-50 border-2 border-orange-500 rounded-2xl p-6 shadow-xl transition-all duration-300 group flex flex-col items-center text-center">
-                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white border-2 border-orange-500 rounded-2xl p-6 shadow-xl">
+                <button onclick="toggleSubMenu('user-sub-menu')" class="w-full group flex flex-col items-center text-center">
+                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </div>
+                    <span class="text-lg font-black text-orange-600 mb-1">ご利用中のお客様</span>
+                    <span class="text-sm font-bold text-slate-900">求人広告の修正・再掲載のご依頼</span>
+                    <div class="mt-2 text-orange-500 animate-bounce">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </div>
+                </button>
+                <div id="user-sub-menu" class="sub-menu mt-4">
+                    <div class="flex flex-col gap-2">
+                        <a href="https://surveymars.com/q/mRsHjABbi" class="block py-2 px-4 bg-orange-500 text-white rounded-lg font-bold text-center text-sm">掲載中の方</a>
+                        <a href="https://surveymars.com/q/iZ9s9CfEc" class="block py-2 px-4 border border-orange-500 text-orange-600 rounded-lg font-bold text-center text-sm">作成中の方</a>
+                    </div>
                 </div>
-                <span class="text-lg font-black text-orange-600 mb-1">ご利用中のお客様</span>
-                <span class="text-lg font-bold text-slate-900 leading-snug">原稿の修正・再掲載の<br>ご依頼はこちら</span>
+            </div>
+
+            <div class="bg-white border-2 border-emerald-600 rounded-2xl p-6 shadow-xl">
+                <button onclick="toggleSubMenu('new-sub-menu')" class="w-full group flex flex-col items-center text-center">
+                    <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    </div>
+                    <span class="text-lg font-black text-emerald-600 mb-1">初めてのお客様</span>
+                    <span class="text-sm font-bold text-slate-900">求人広告掲載のご相談</span>
+                    <div class="mt-2 text-emerald-500 animate-bounce">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </div>
+                </button>
+                <div id="new-sub-menu" class="sub-menu mt-4">
+                    <div class="flex flex-col gap-2">
+                        <a href="#" class="block py-2 px-4 bg-emerald-600 text-white rounded-lg font-bold text-center text-sm">掲載の相談・申込</a>
+                        <button onclick="openModal()" class="block w-full py-2 px-4 border border-emerald-600 text-emerald-700 rounded-lg font-bold text-center text-sm">まずは資料を見る</button>
+                    </div>
+                </div>
+            </div>
+
+            <a href="sss.html" class="bg-white border-2 border-emerald-600 rounded-2xl p-6 shadow-xl flex flex-col items-center text-center hover:bg-emerald-50 transition">
+                <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/></svg>
+                </div>
+                <span class="text-lg font-black text-emerald-600 mb-1">簡易お見積もり</span>
+                <span class="text-sm font-bold text-slate-900">戦略シミュレーター</span>
             </a>
 
-            <!-- 2. 新規のお客様用リンク -->
-            <a href="URLをここに記入" class="bg-white hover:bg-emerald-50 border-2 border-emerald-600 rounded-2xl p-6 shadow-xl transition-all duration-300 group flex flex-col items-center text-center">
-                <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="16" x2="22" y1="11" y2="11"/></svg>
+            <a href="https://job.inshokuten.com/kansai/" target="_blank" rel="noopener noreferrer" class="bg-slate-800 rounded-2xl p-6 shadow-xl flex flex-col items-center text-center text-white hover:bg-slate-900 transition">
+                <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
                 </div>
-                <span class="text-lg font-black text-emerald-600 mb-1">新規のお客様</span>
-                <span class="text-lg font-bold text-slate-900 leading-snug">原稿の掲載に関する<br>ご相談・お申込み</span>
-            </a>
-
-            <!-- 3. 本サイトへのリンク -->
-            <a href="URLをここに記入" class="bg-slate-800 hover:bg-slate-900 border-2 border-slate-800 rounded-2xl p-6 shadow-xl transition-all duration-300 group flex flex-col items-center text-center text-white">
-                <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
-                </div>
-                <span class="text-base font-bold text-slate-400 mb-1">求人飲食店ドットコム</span>
-                <span class="text-lg font-black leading-snug">サービス本サイトへ<br>移動する</span>
+                <span class="text-lg font-black mb-1">本サイトへ</span>
+                <span class="text-sm font-bold text-slate-400">求人飲食店ドットコム</span>
             </a>
         </div>
     </section>
 
-    <!-- Main Content -->
+    <!-- Main Content (Tabs) -->
     <main class="max-w-6xl mx-auto px-4 mt-16">
-        <!-- Tabs -->
-        <div class="flex justify-center mb-10">
-            <div class="bg-emerald-100/50 p-1.5 rounded-2xl flex w-full max-w-md border border-emerald-100">
-                <button onclick="switchTab('campaign')" id="btn-campaign" class="tab-button flex-1 py-3 rounded-xl font-bold transition text-sm active">
-                    期間限定CP
-                </button>
-                <button onclick="switchTab('standard')" id="btn-standard" class="tab-button flex-1 py-3 rounded-xl font-bold transition text-sm">
-                    通常プラン
-                </button>
-                <button onclick="switchTab('option')" id="btn-option" class="tab-button flex-1 py-3 rounded-xl font-bold transition text-sm">
-                    オプション
-                </button>
+      <div class="flex justify-center mb-10">
+             <div class="bg-emerald-100/50 p-1.5 rounded-2xl flex w-full max-w-md border border-emerald-100">
+                <button onclick="switchTab('standard')" id="btn-standard" class="tab-button flex-1 py-3 rounded-xl font-bold transition text-sm active">通常プラン</button>
+                <button onclick="switchTab('option')" id="btn-option" class="tab-button flex-1 py-3 rounded-xl font-bold transition text-sm">オプション</button>
             </div>
         </div>
 
-        <!-- Campaign Tab Content -->
-        <div id="campaign" class="tab-content active animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Plan 1 -->
-                <div class="bg-white rounded-3xl shadow-sm border border-emerald-100 flex flex-col transition-all hover:shadow-xl hover:-translate-y-1 duration-300 overflow-hidden">
-                    <div class="p-8 pb-6">
-                        <div class="flex justify-between items-start mb-6">
-                            <div class="p-3 bg-emerald-50 rounded-2xl">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
-                            </div>
-                            <span class="bg-orange-50 text-orange-600 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider border border-orange-100">スタンダード</span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-1 text-slate-900">3店舗3か月パック(①)</h3>
-                        <p class="text-slate-400 text-xs mb-6 font-medium">多店舗展開・コスト重視</p>
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-xs font-bold text-slate-400 mr-1">税込</span>
-                            <span class="text-3xl font-black text-emerald-700">¥150,000</span>
-                            <span class="text-sm text-emerald-600/50">〜</span>
-                        </div>
-                        <p class="text-xs text-rose-400 font-medium mt-1">207,000相当</p>
-                    </div>
-                    <div class="px-8 pb-8 flex-grow">
-                        <div class="h-px bg-emerald-50 w-full mb-6"></div>
-                        <ul class="space-y-4">
-                            <li class="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg> <span>3店舗分の一括契約</span></li>
-                            <li class="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg> <span>3か月間の長期掲載</span></li>
-                            <li class="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg> <span>エリア跨ぎ掲載可能</span></li>
-                        </ul>
-                    </div>
-                    <div class="px-8 pb-8">
-                        <button class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">詳細を確認する</button>
-                    </div>
-                </div>
-                
-                <!-- Plan 2 -->
-                <div class="bg-white rounded-3xl shadow-sm border border-emerald-100 flex flex-col transition-all hover:shadow-xl hover:-translate-y-1 duration-300 overflow-hidden">
-                    <div class="p-8 pb-6">
-                        <div class="flex justify-between items-start mb-6">
-                            <div class="p-3 bg-emerald-50 rounded-2xl">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                            </div>
-                            <span class="bg-orange-50 text-orange-600 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider border border-orange-100">露出重視</span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-1 text-slate-900">新着強化パック(②)</h3>
-                        <p class="text-slate-400 text-xs mb-6 font-medium">露出最大化・急ぎの採用</p>
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-xs font-bold text-slate-400 mr-1">税込</span>
-                            <span class="text-3xl font-black text-emerald-700">¥300,000</span>
-                        </div>
-                        <p class="text-xs text-rose-400 font-medium mt-1">新着11回分含む</p>
-                    </div>
-                    <div class="px-8 pb-8 flex-grow">
-                        <div class="h-px bg-emerald-50 w-full mb-6"></div>
-                        <ul class="space-y-4">
-                            <li class="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg> <span>3店舗3か月掲載</span></li>
-                            <li class="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg> <span>新着表示 合計11回付与</span></li>
-                            <li class="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg> <span>常に検索上位をキープ</span></li>
-                        </ul>
-                    </div>
-                    <div class="px-8 pb-8">
-                        <button class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">詳細を確認する</button>
-                    </div>
-                </div>
-
-                <!-- Plan 3 -->
-                <div class="bg-white rounded-3xl shadow-sm border border-emerald-100 flex flex-col transition-all hover:shadow-xl hover:-translate-y-1 duration-300 overflow-hidden">
-                    <div class="p-8 pb-6">
-                        <div class="flex justify-between items-start mb-6">
-                            <div class="p-3 bg-emerald-50 rounded-2xl">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                            </div>
-                            <span class="bg-orange-50 text-orange-600 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider border border-orange-100">最強プラン</span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-1 text-slate-900">フルパッケージ(③)</h3>
-                        <p class="text-slate-400 text-xs mb-6 font-medium">最重要拠点・攻めの採用</p>
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-xs font-bold text-slate-400 mr-1">税込</span>
-                            <span class="text-3xl font-black text-emerald-700">¥400,000</span>
-                        </div>
-                        <p class="text-xs text-rose-400 font-medium mt-1">新着+スカウト50通付</p>
-                    </div>
-                    <div class="px-8 pb-8 flex-grow">
-                        <div class="h-px bg-emerald-50 w-full mb-6"></div>
-                        <ul class="space-y-4">
-                            <li class="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg> <span>3店舗3か月掲載</span></li>
-                            <li class="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg> <span>新着表示 11回分</span></li>
-                            <li class="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg> <span>スカウトメール 50通</span></li>
-                        </ul>
-                    </div>
-                    <div class="px-8 pb-8">
-                        <button class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">詳細を確認する</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Standard Tab Content -->
-        <div id="standard" class="tab-content animate-in fade-in duration-500">
+        <!-- Standard Tab -->
+        <div id="standard" class="tab-content active">
             <div class="bg-white rounded-3xl shadow-sm border border-emerald-100 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
@@ -245,6 +268,18 @@
                                 <td class="px-8 py-6 text-slate-400 text-sm text-center font-mono">¥600 /日</td>
                                 <td class="px-8 py-6 text-right"><span class="bg-rose-50 text-rose-500 font-bold px-3 py-1.5 rounded-xl text-xs border border-rose-100">5,400円引</span></td>
                             </tr>
+                            <tr class="hover:bg-emerald-50/30 transition">
+                                <td class="px-8 py-6 font-bold text-slate-700">180日</td>
+                                <td class="px-8 py-6"><span class="text-2xl font-black text-emerald-800">¥102,000</span></td>
+                                <td class="px-8 py-6 text-slate-400 text-sm text-center font-mono">¥567 /日</td>
+                                <td class="px-8 py-6 text-right"><span class="bg-rose-50 text-rose-500 font-bold px-3 py-1.5 rounded-xl text-xs border border-rose-100">16,800円引</span></td>
+                            </tr>
+                            <tr class="hover:bg-emerald-50/30 transition">
+                                <td class="px-8 py-6 font-bold text-slate-700">360日</td>
+                                <td class="px-8 py-6"><span class="text-2xl font-black text-emerald-800">¥190,000</span></td>
+                                <td class="px-8 py-6 text-slate-400 text-sm text-center font-mono">¥528 /日</td>
+                                <td class="px-8 py-6 text-right"><span class="bg-rose-50 text-rose-500 font-bold px-3 py-1.5 rounded-xl text-xs border border-rose-100">47,600円引</span></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -257,100 +292,401 @@
             </div>
         </div>
 
-        <!-- Option Tab Content -->
-        <div id="option" class="tab-content animate-in fade-in duration-500">
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Option 1 -->
-                <div class="bg-white p-7 rounded-3xl shadow-sm border border-emerald-50 hover:border-emerald-200 transition-all hover:shadow-md">
-                    <div class="mb-5 p-3 bg-slate-50 w-fit rounded-2xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-                    </div>
-                    <h4 class="font-bold text-lg mb-1 text-slate-800">一覧上位表示</h4>
-                    <div class="text-emerald-700 font-black text-xl mb-3">¥80,000 <span class="text-[10px] text-slate-400 font-bold uppercase">/ 1週間</span></div>
-                    <p class="text-slate-500 text-xs mb-6 leading-relaxed h-10 line-clamp-2">検索結果の最上部に固定表示され、視認性を最大化します。</p>
+<!-- =====================================================
+     オプションタブ（4列 + 画像モーダル付き）
+     
+     【使い方】
+     各カードの href="idc/〇〇.jpg" がモーダルで表示される画像パスです。
+     画像を変更する場合は href の値を書き換えるだけでOKです。
+===================================================== -->
+
+<!-- 画像モーダル -->
+<div id="image-modal" onclick="closeImageModal()" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4 cursor-pointer">
+    <div class="relative max-w-4xl w-full" onclick="event.stopPropagation()">
+        <!-- 閉じるボタン -->
+        <button onclick="closeImageModal()" class="absolute -top-10 right-0 text-white/80 hover:text-white flex items-center gap-1.5 text-sm font-bold transition">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            閉じる
+        </button>
+        <!-- 表示画像（クリックしても閉じる） -->
+        <img id="modal-image" src="" alt="" onclick="closeImageModal()" class="w-full rounded-2xl shadow-2xl cursor-pointer" />
+    </div>
+</div>
+
+<!-- Option Tab -->
+<div id="option" class="tab-content">
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- ① 急募掲載 -->
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-emerald-50 hover:border-emerald-200 transition-all hover:shadow-md flex flex-col">
+            <!-- アイコン + 項目名 横並び -->
+            <div class="flex items-center gap-3 mb-3">
+                <div class="p-2.5 bg-slate-50 rounded-xl shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                 </div>
-                <!-- Option 2 -->
-                <div class="bg-white p-7 rounded-3xl shadow-sm border border-emerald-50 hover:border-emerald-200 transition-all hover:shadow-md">
-                    <div class="mb-5 p-3 bg-slate-50 w-fit rounded-2xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                    </div>
-                    <h4 class="font-bold text-lg mb-1 text-slate-800">注目求人</h4>
-                    <div class="text-emerald-700 font-black text-xl mb-3">¥40,000 <span class="text-[10px] text-slate-400 font-bold uppercase">/ 1週間</span></div>
-                    <p class="text-slate-500 text-xs mb-6 leading-relaxed h-10 line-clamp-2">画像付きの専用枠で、ブランドイメージを強力に訴求します。</p>
-                </div>
-                <!-- Option 3 -->
-                <div class="bg-white p-7 rounded-3xl shadow-sm border border-emerald-50 hover:border-emerald-200 transition-all hover:shadow-md">
-                    <div class="mb-5 p-3 bg-slate-50 w-fit rounded-2xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-                    </div>
-                    <h4 class="font-bold text-lg mb-1 text-slate-800">スカウト</h4>
-                    <div class="text-emerald-700 font-black text-xl mb-3">¥50,000 <span class="text-[10px] text-slate-400 font-bold uppercase">/ 20通</span></div>
-                    <p class="text-slate-500 text-xs mb-6 leading-relaxed h-10 line-clamp-2">求める人材へ直接メールを送り、確度の高いアプローチが可能です。</p>
-                </div>
-                <!-- Option 4 -->
-                <div class="bg-white p-7 rounded-3xl shadow-sm border border-emerald-50 hover:border-emerald-200 transition-all hover:shadow-md">
-                    <div class="mb-5 p-3 bg-slate-50 w-fit rounded-2xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    </div>
-                    <h4 class="font-bold text-lg mb-1 text-slate-800">新着表示</h4>
-                    <div class="text-emerald-700 font-black text-xl mb-3">¥15,000 <span class="text-[10px] text-slate-400 font-bold uppercase">/ 1回</span></div>
-                    <p class="text-slate-500 text-xs mb-6 leading-relaxed h-10 line-clamp-2">掲載途中で求人を新着順のトップへ再掲載します。</p>
-                </div>
+                <h4 class="font-bold text-base text-slate-800 leading-tight">急募掲載</h4>
+            </div>
+            <div class="text-emerald-700 font-black text-xl mb-2">¥10,000 <span class="text-[10px] text-slate-400 font-bold uppercase">/ 1件</span></div>
+            <p class="text-slate-500 text-xs leading-relaxed flex-grow">急募求人として露出を増やし、応募を促します。</p>
+            <div class="mt-5">
+                <button onclick="openImageModal('idc/オプション急募掲載.jpg')"
+                    class="w-full py-2 px-4 bg-emerald-600 text-white text-center rounded-xl font-bold hover:bg-emerald-700 transition text-xs shadow-sm shadow-emerald-100">
+                    詳細を見る
+                </button>
             </div>
         </div>
+
+        <!-- ② 新着表示 -->
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-emerald-50 hover:border-emerald-200 transition-all hover:shadow-md flex flex-col">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="p-2.5 bg-slate-50 rounded-xl shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <h4 class="font-bold text-base text-slate-800 leading-tight">新着表示</h4>
+            </div>
+            <div class="text-emerald-700 font-black text-xl mb-2">¥15,000 <span class="text-[10px] text-slate-400 font-bold uppercase">/ 1回</span></div>
+            <p class="text-slate-500 text-xs leading-relaxed flex-grow">掲載途中で求人を新着順のトップへ再掲載します。</p>
+            <div class="mt-5">
+                <button onclick="openImageModal('idc/オプション新着表示.jpg')"
+                    class="w-full py-2 px-4 bg-emerald-600 text-white text-center rounded-xl font-bold hover:bg-emerald-700 transition text-xs shadow-sm shadow-emerald-100">
+                    詳細を見る
+                </button>
+            </div>
+        </div>
+
+        <!-- ③ 特集掲載 -->
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-emerald-50 hover:border-emerald-200 transition-all hover:shadow-md flex flex-col">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="p-2.5 bg-slate-50 rounded-xl shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                </div>
+                <h4 class="font-bold text-base text-slate-800 leading-tight">特集掲載</h4>
+            </div>
+            <div class="text-emerald-700 font-black text-xl mb-2">¥20,000 <span class="text-[10px] text-slate-400 font-bold uppercase">/ 1週間</span></div>
+            <p class="text-slate-500 text-xs leading-relaxed flex-grow">ターゲット層に適格にアプローチ！露出度が大きく向上します。</p>
+            <div class="mt-5">
+                <button onclick="openImageModal('idc/オプション特集掲載.jpg')"
+                    class="w-full py-2 px-4 bg-emerald-600 text-white text-center rounded-xl font-bold hover:bg-emerald-700 transition text-xs shadow-sm shadow-emerald-100">
+                    詳細を見る
+                </button>
+            </div>
+        </div>
+
+        <!-- ④ スカウト -->
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-emerald-50 hover:border-emerald-200 transition-all hover:shadow-md flex flex-col">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="p-2.5 bg-slate-50 rounded-xl shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                </div>
+                <h4 class="font-bold text-base text-slate-800 leading-tight">スカウト</h4>
+            </div>
+            <div class="text-emerald-700 font-black text-xl mb-2">¥50,000 <span class="text-[10px] text-slate-400 font-bold uppercase">/ 20通</span></div>
+            <p class="text-slate-500 text-xs leading-relaxed flex-grow">求める人材へ直接メールを送り、確度の高いアプローチが可能です。</p>
+            <div class="mt-5">
+                <button onclick="openImageModal('idc/オプションスカウトサービス.jpg')"
+                    class="w-full py-2 px-4 bg-emerald-600 text-white text-center rounded-xl font-bold hover:bg-emerald-700 transition text-xs shadow-sm shadow-emerald-100">
+                    詳細を見る
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+/* -----------------------------------------------
+    画像モーダル 開く
+    imagePath: 表示する画像のパスまたはURL
+----------------------------------------------- */
+function openImageModal(imagePath) {
+    const modal = document.getElementById('image-modal');
+    const img   = document.getElementById('modal-image');
+    if (!modal || !img) return;
+    img.src = imagePath;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+/* -----------------------------------------------
+    画像モーダル 閉じる
+    ・×ボタン、画像クリック、背景クリック いずれでも閉じる
+----------------------------------------------- */
+function closeImageModal() {
+    const modal = document.getElementById('image-modal');
+    const img   = document.getElementById('modal-image');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+    // 次回表示時に前の画像が一瞬見えないようsrcをリセット
+    if (img) img.src = '';
+}
+</script>
+
     </main>
 
-    <!-- Footer Support -->
+    <!-- Footer -->
     <footer class="mt-24 max-w-4xl mx-auto px-4 text-center">
-        <div class="inline-flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-full text-xs font-bold text-slate-500 mb-10">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>原稿作成代行（オプション）: 10,000円(税別)〜</span>
-        </div>
-        
+    <!-- ================================================================
+     バッジ（原稿作成代行）のサイズ調整ガイド
+     
+     ▼ 横の余白  : px-○ の数字を大きくすると左右が広がる（現在: px-8）
+     ▼ 縦の余白  : py-○ の数字を大きくすると上下が広がる（現在: py-4）
+     ▼ 文字サイズ: text-○ を変更（xs→sm→base→lg→xl の順で大きくなる）（現在: text-base）
+     ▼ アイコン  : width・height の数値を大きくする（現在: 18）
+     ▼ 下の余白  : mb-○ の数字でバッジ下の余白を調整（現在: mb-10）
+================================================================ -->
+<div class="inline-flex items-center gap-2 bg-slate-100 px-8 py-4 rounded-full text-base font-bold text-slate-500 mb-10">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+    </svg>
+    <span>初回原稿作成代行（オプション）: 10,000円(税別)〜</span>
+</div>
         <div class="bg-white shadow-2xl shadow-emerald-200/50 rounded-[40px] p-12 border border-emerald-100 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16"></div>
             <h2 class="text-2xl md:text-3xl font-bold mb-3 text-slate-900">掲載のご相談はこちら</h2>
             <p class="text-slate-500 mb-10 text-sm font-medium">貴店の採用課題に合わせて、最適なプランをご提案させていただきます。</p>
-            
             <div class="flex flex-col md:flex-row items-center justify-center gap-6">
-                <div class="text-center">
-                    <div class="text-4xl font-black text-emerald-800 tracking-tighter mb-1 font-mono">03-xxxx-xxxx</div>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">受付: 平日 10:00 〜 19:00</p>
-                </div>
                 <div class="h-px md:h-12 w-12 md:w-px bg-emerald-100"></div>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white px-10 py-5 rounded-3xl font-bold transition shadow-xl shadow-orange-100 text-lg">
-                    WEBから問い合わせ
+                <button onclick="openModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-10 py-5 rounded-3xl font-bold transition shadow-xl shadow-orange-100 text-lg">
+                    資料ダウンロード
                 </button>
             </div>
         </div>
-        
         <div class="mt-16 flex flex-col items-center gap-4 text-emerald-600/40">
             <div class="flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 <span class="text-xs font-bold uppercase tracking-widest">JobBoard Portfolio</span>
             </div>
-            <p class="text-slate-300 text-[10px] font-bold">© 2026 Synchro Food Co., Ltd. | Version 2.1.0 (HTML Edition)</p>
+            <p class="text-slate-300 text-[10px] font-bold">©求人飲食店ドットコム 掲載・運用サポートデスク</p>
         </div>
     </footer>
 
+    <!-- 資料請求モーダル -->
+    <div id="contact-modal" class="fixed inset-0 z-[100] items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-lg rounded-[32px] shadow-2xl overflow-hidden relative">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="p-8 md:p-10">
+                <div id="form-container">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-2">資料ダウンロード</h2>
+                    <p class="text-slate-500 text-sm mb-8">必要事項をご入力いただくと、最新の営業資料をダウンロードいただけます。</p>
+                    <form id="gas-contact-form" class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">会社名・店舗名 <span class="text-red-500">*</span></label>
+                            <input type="text" name="company" required placeholder="例：飲食店ドットコム"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">ご担当者名 <span class="text-red-500">*</span></label>
+                            <input type="text" name="name" required placeholder="例：山田 太郎"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">メールアドレス <span class="text-red-500">*</span></label>
+                            <input type="email" name="email" required placeholder="example@inshokuten.com"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                        </div>
+                        <div class="pt-4">
+                            <button type="submit" id="submit-btn"
+                                class="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-2xl shadow-lg shadow-orange-100 transition flex items-center justify-center gap-2">
+                                <span>送信して資料をダウンロード</span>
+                                <svg id="btn-spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div id="success-container" class="hidden text-center py-6">
+                    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900 mb-2">ありがとうございます！</h2>
+                    <p class="text-slate-500 mb-8 px-4 text-sm leading-relaxed">
+                        情報の送信が完了しました。<br>
+                        下記のボタンより営業資料をダウンロードしてください。
+                    </p>
+                    <a id="download-link" href="https://drive.google.com/file/d/1mVP4J8AWTkgasHn6Lv4ic429a7FubUaa/view?usp=drive_link" target="_blank"
+                        class="block w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl shadow-lg shadow-emerald-100 transition">
+                        営業資料をダウンロード (PDF)
+                    </a>
+                    <button onclick="closeModal()" class="mt-6 text-slate-400 text-sm font-bold hover:text-slate-600 transition">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function switchTab(tabId) {
-            // Hide all contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Remove active class from all buttons
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show selected content
-            document.getElementById(tabId).classList.add('active');
-            
-            // Add active class to clicked button
-            document.getElementById('btn-' + tabId).classList.add('active');
+
+    /* ================================================
+       ▼▼▼ スライドショー設定 ▼▼▼
+       
+       画像URLをこの配列に入れてください。
+       ・追加 → 配列に1行追加するだけ
+       ・削除 → 対象の行を削除するだけ
+       ・順番 → 並べ替えるだけ
+       
+       ※ 相対パス（"images/photo1.jpg"）でも
+          絶対URL（"https://..."）でも動作します。
+    ================================================ */
+    const SLIDESHOW_IMAGES = [
+        "idc-ph/idc-001.jpg", // ← 写真1（ドーナツ店内）
+        "idc-ph/idc-002.jpg", // ← 写真1（ワインソムリエ）
+        "idc-ph/idc-003.jpg", // ← 写真1（寿司職人）
+        "idc-ph/idc-004.jpg", // ← 写真1（ラーメン）
+        "idc-ph/idc-005.jpg", // ← 写真1（居酒屋）
+        "idc-ph/idc-006.jpg", // ← 写真1（居酒屋カウンター）
+        "idc-ph/idc-007.jpg", // ← 写真1（接客スタッフ）
+        "idc-ph/idc-008.jpg", // ← 写真1（乾杯）
+    ];
+
+    /* ================================================
+       ▼▼▼ タイミング設定（任意で変更可） ▼▼▼
+    ================================================ */
+    const SLIDE_INTERVAL_MS = 5000;  // 各スライドの表示時間（ミリ秒）。5000 = 5秒
+
+    /* ------------------------------------------------
+       以下は変更不要です
+    ------------------------------------------------ */
+    (function initSlideshow() {
+        const container = document.getElementById('hero-slideshow');
+        const dotsContainer = document.getElementById('slideshow-dots');
+        if (!container || SLIDESHOW_IMAGES.length === 0) return;
+
+        // 画像が1枚以下ならスライドショー不要
+        if (SLIDESHOW_IMAGES.length === 1) {
+            container.style.backgroundImage = `url('${SLIDESHOW_IMAGES[0]}')`;
+            container.style.backgroundSize = 'cover';
+            container.style.backgroundPosition = 'center';
+            return;
         }
+
+        let currentIndex = 0;
+        const slides = [];
+        const dots = [];
+
+        // スライド要素とドットを枚数分生成
+        SLIDESHOW_IMAGES.forEach((url, i) => {
+            // スライド
+            const slide = document.createElement('div');
+            slide.className = 'hero-slide';
+            slide.style.backgroundImage = `url('${url}')`;
+            if (i === 0) slide.classList.add('is-active');
+            container.appendChild(slide);
+            slides.push(slide);
+
+            // ドット
+            const dot = document.createElement('button');
+            dot.className = 'slide-dot' + (i === 0 ? ' is-active' : '');
+            dot.setAttribute('aria-label', `スライド ${i + 1}`);
+            dot.addEventListener('click', () => goToSlide(i));
+            dotsContainer.appendChild(dot);
+            dots.push(dot);
+        });
+
+        function goToSlide(index) {
+            slides[currentIndex].classList.remove('is-active');
+            dots[currentIndex].classList.remove('is-active');
+            currentIndex = (index + slides.length) % slides.length;
+            slides[currentIndex].classList.add('is-active');
+            dots[currentIndex].classList.add('is-active');
+        }
+
+        // 自動再生
+        setInterval(() => goToSlide(currentIndex + 1), SLIDE_INTERVAL_MS);
+    })();
+
+    /* ================================================
+       以下は元のコードのままです
+    ================================================ */
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwpBSGECVPPOGseEQqxl7qpoSNssILWmY2FDwPjZbH72U8qC2z1WQhrsRsTNsOvJiaD/exec";
+
+    function openModal() {
+        const modal = document.getElementById('contact-modal');
+        if (modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('contact-modal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            setTimeout(() => {
+                const formContainer = document.getElementById('form-container');
+                const successContainer = document.getElementById('success-container');
+                const form = document.getElementById('gas-contact-form');
+                if (formContainer) formContainer.classList.remove('hidden');
+                if (successContainer) successContainer.classList.add('hidden');
+                if (form) form.reset();
+            }, 300);
+        }
+    }
+
+    const modalElement = document.getElementById('contact-modal');
+    if (modalElement) {
+        modalElement.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    }
+
+    const contactForm = document.getElementById('gas-contact-form');
+    if (contactForm) {
+        contactForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submit-btn');
+            const spinner = document.getElementById('btn-spinner');
+            if (submitBtn) submitBtn.disabled = true;
+            if (spinner) spinner.classList.remove('hidden');
+            const formData = new FormData(e.target);
+            const params = new URLSearchParams();
+            params.append('type', 'contact');
+            params.append('company', formData.get('company'));
+            params.append('name', formData.get('name'));
+            params.append('email', formData.get('email'));
+            try {
+                if (GAS_URL && !GAS_URL.includes('ここに')) {
+                    await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+                    showSuccess();
+                } else {
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    showSuccess();
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                alert('送信中にエラーが発生しました。お手数ですが時間をおいて再度お試しください。');
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+                if (spinner) spinner.classList.add('hidden');
+            }
+        };
+    }
+
+    function showSuccess() {
+        const formContainer = document.getElementById('form-container');
+        const successContainer = document.getElementById('success-container');
+        if (formContainer) formContainer.classList.add('hidden');
+        if (successContainer) successContainer.classList.remove('hidden');
+    }
+
+    function toggleSubMenu(menuId) {
+        const menu = document.getElementById(menuId);
+        if (menu) menu.classList.toggle('open');
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+        const targetContent = document.getElementById(tabId);
+        const targetBtn = document.getElementById('btn-' + tabId);
+        if (targetContent) targetContent.classList.add('active');
+        if (targetBtn) targetBtn.classList.add('active');
+    }
+
     </script>
 </body>
 </html>
