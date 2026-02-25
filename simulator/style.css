@@ -16,4 +16,97 @@ body {
     background: var(--bg);
     color: var(--txt);
 }
-/* ...省略... */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-button.active { background-color: white; color: #047857; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .tab-button:not(.active) { color: rgba(5, 150, 105, 0.7); }
+
+        #contact-modal { display: none; }
+        #contact-modal.active { display: flex; }
+
+        .sub-menu { display: none; }
+        .sub-menu.open { display: block; }
+
+        /* =====================================================
+           ヒーロー スライドショー
+           
+           【画像の追加・削除方法】
+           JavaScript の SLIDESHOW_IMAGES 配列にURLを追加・削除するだけでOKです。
+           CSSは一切変更不要です。
+        ===================================================== */
+
+        /* スライドショーのコンテナ */
+        #hero-slideshow {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        /* 各スライド（画像レイヤー） */
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out; /* フェードの速さ（秒） */
+        }
+
+        /* アクティブなスライドだけ表示 */
+        .hero-slide.is-active {
+            opacity: 1;
+        }
+
+        /* 画像の上に重ねるオーバーレイ（文字可読性を確保） */
+        #hero-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            /* グラデーション：上下を少し暗くして中央はやや薄め */
+            background: linear-gradient(
+                to bottom,
+                rgba(5, 46, 22, 0.55) 0%,
+                rgba(5, 46, 22, 0.40) 40%,
+                rgba(5, 46, 22, 0.55) 100%
+            );
+        }
+
+        /* ヒーロー内のコンテンツを前面に出す */
+        #hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* テキストシャドウで文字をさらに読みやすく */
+        #hero-content h1 {
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+        }
+        #hero-content p {
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+        }
+
+        /* スライドインジケーター（ドット） */
+        #slideshow-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            gap: 8px;
+        }
+        .slide-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 9999px;
+            background: rgba(255,255,255,0.45);
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, width 0.3s;
+            padding: 0;
+        }
+        .slide-dot.is-active {
+            background: white;
+            width: 24px; /* アクティブは横長に */
+        }
