@@ -714,9 +714,19 @@
 
 <script>
 // ===================================================
-// 設定
+// ▼▼▼ 設定エリア（再デプロイ時はここを編集）▼▼▼
 // ===================================================
-const GAS_URL    = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+
+// 【GAS WebアプリのURL】
+// GASを再デプロイした場合は、下記の URL を新しいものに貼り替えてください。
+// 取得方法：
+//   GASスクリプト画面 → 上部「デプロイ」→「デプロイを管理」
+//   → 対象のデプロイ行の「ウェブアプリ」欄にあるURLをコピー
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRMqcYrXE_Qk6Oek2lMRNcBLQ8ZFOQTnlHiHOKzozQc7Apy-MI64_NLNl1GJTsqRO8-Q/exec';
+
+// 【自動保存キー】（通常は変更不要）
+// ブラウザのlocalStorageに保存する際のキー名。
+// フォームのバージョンを上げた際に変更すると、古い保存データが引き継がれなくなります。
 const STORAGE_KEY = 'unified_form_v3_0_0';
 const CLIENT_KEY  = 'unified_client_v3_0_0';
 
@@ -1124,21 +1134,18 @@ async function submitAll() {
     btn.disabled = true;
 
     try {
-        const res = await fetch(GAS_URL, {
+        await fetch(GAS_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            mode: 'no-cors', // GASのCORS制限を回避。レスポンスは読めないが送信は届く。
+            headers: { 'Content-Type': 'text/plain' }, // no-corsではapplication/jsonが使えないためtext/plainに変更
             body: JSON.stringify({ formType: 'unified', clientName, storeData, csvContent, csvFileName })
         });
-        const json = await res.json();
-        if (json.status === 'ok') {
-            document.getElementById('modalClient').textContent = clientName;
-            const link = document.getElementById('modalFolderLink');
-            if (json.folderUrl) { link.href = json.folderUrl; link.classList.remove('hidden'); } else link.classList.add('hidden');
-            document.getElementById('successModal').classList.remove('hidden');
-            localStorage.removeItem(STORAGE_KEY);
-        } else {
-            alert('❌ 送信に失敗しました。\n' + (json.message || ''));
-        }
+        // no-corsではレスポンスの中身が読めないため、送信完了とみなしてモーダルを表示する
+        // ※ 実際にGASで処理が成功したかはGoogleドライブ・通知メールで確認してください
+        document.getElementById('modalClient').textContent = clientName;
+        document.getElementById('modalFolderLink').classList.add('hidden');
+        document.getElementById('successModal').classList.remove('hidden');
+        localStorage.removeItem(STORAGE_KEY);
     } catch(err) {
         alert('❌ 通信エラー: ' + err.message);
     } finally {
