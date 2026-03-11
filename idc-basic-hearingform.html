@@ -661,9 +661,9 @@
                     <div class="flex flex-wrap gap-1.5 text-[11px]">
                         <label class="flex items-center gap-1"><input type="checkbox" name="kn_wine"> ワイン</label>
                         <label class="flex items-center gap-1"><input type="checkbox" name="kn_sake"> 日本酒</label>
-                        <label class="flex items-center gap-1"><input type="checkbox" name="kn_liquor"> お酒全般</label>
+                        <label class="flex items-center gap-1"><input type="checkbox" name="kn_liquor"> お酒（リキュール・ウィスキーなど）</label>
                         <label class="flex items-center gap-1"><input type="checkbox" name="kn_coffee"> コーヒー</label>
-                        <label class="flex items-center gap-1"><input type="checkbox" name="kn_tea"> お茶</label>
+                        <label class="flex items-center gap-1"><input type="checkbox" name="kn_tea"> お茶（日本茶・紅茶など）</label>
                         <label class="flex items-center gap-1"><input type="checkbox" name="kn_meat"> 肉</label>
                         <label class="flex items-center gap-1"><input type="checkbox" name="kn_fish"> 魚</label>
                         <label class="flex items-center gap-1"><input type="checkbox" name="kn_vege"> 野菜</label>
@@ -680,7 +680,7 @@
                         <label class="flex items-center gap-1"><input type="checkbox" name="no_open"> 出店開業</label>
                         <label class="flex items-center gap-1"><input type="checkbox" name="no_mgmt"> 店舗運営</label>
                         <label class="flex items-center gap-1"><input type="checkbox" name="no_menu"> メニュー開発</label>
-                        <label class="flex items-center gap-1"><input type="checkbox" name="no_stock"> 仕入れ・食材調達</label>
+                        <label class="flex items-center gap-1"><input type="checkbox" name="no_stock"> 仕入れ・食材の目利き</label>
                     </div></div>
                 </div>
             </section>
@@ -730,7 +730,9 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRMqcYrXE_Qk6Oek2lMRNc
 const STORAGE_KEY = 'unified_form_v3_0_0';
 const CLIENT_KEY  = 'unified_client_v3_0_0';
 
-const CSV_HEADERS = ["下書き原稿のID","職種","雇用形態","履歴書不要","新卒歓迎","未経験者歓迎","独立希望者歓迎","経験者優遇","給与","下限","上限","給与備考","ボーナス・賞与あり","昇給あり","寮・住宅手当あり","交通費全額支給","家族手当","資格手当・スキル手当","インセンティブ制度","退職金","日払いOK","扶養内OK","応募資格","勤務時間","ランチのお仕事","終電考慮","副業・ダブルワークOK","フルタイム歓迎","残業月20時間以内","休日・休暇","月8日以上休み","月9日以上休み","完全週休2日制","産休・育休","夏季休暇","年末年始休暇","GW休暇","特別休暇","待遇","待遇・福利厚生（説明）","まかない・食事補助あり","社会保険完備","制服貸与","研修が充実","海外研修","生産者訪問","資格取得支援","バイク・車通勤OK","社員登用制度","髪型自由","仕事内容・求める人材","ラテアート","包丁さばき","飾り包丁","ピザメイク","製麺","寿司技術","盛り付け技術","製パン技術","製菓技術","カクテル技法","高級食材の知識","英会話","ワインの知識","日本酒の知識","お酒の知識","コーヒーの知識","お茶の知識","肉の知識","魚の知識","野菜の知識","チーズの知識","洋菓子の知識","和菓子の知識","食器の知識","婚礼料理・パーティーメニュー","テーブルマナー","着物の着付け","出店開業ノウハウ","店舗運営","メニュー開発","仕入れ・食材調達"];
+// 列順はメーカー指定のExcelテンプレートに準拠
+// 「待遇・福利厚生（説明）」はExcel非対応のため最終列に配置（媒体登録時に不要なら削除してください）
+const CSV_HEADERS = ["下書き原稿のID","職種","雇用形態","履歴書不要","新卒歓迎","未経験者歓迎","独立希望者歓迎","経験者優遇","給与","下限","上限","給与備考","ボーナス・賞与あり","昇給あり","寮・住宅手当あり","交通費全額支給","家族手当","資格手当・スキル手当","インセンティブ制度","退職金","日払いOK","扶養内OK","応募資格","勤務時間","ランチのお仕事","終電考慮","副業・ダブルワークOK","フルタイム歓迎","残業月20時間以内","休日・休暇","月8日以上休み","月9日以上休み","完全週休2日制","産休・育休","夏季休暇","年末年始休暇","GW休暇","特別休暇","待遇","まかない・食事補助あり","社会保険完備","制服貸与","研修が充実","海外研修","生産者訪問","資格取得支援","バイク・車通勤OK","社員登用制度","髪型自由","仕事内容・求める人材","ラテアート","包丁さばき","飾り包丁","ピザメイク","製麺","寿司技術","盛り付け技術","製パン技術","製菓技術","カクテル技法","高級食材の知識","英会話","ワインの知識","日本酒の知識","お酒（リキュール・ウィスキーなど)の知識","コーヒーの知識","お茶(日本茶・紅茶など)の知識","肉の知識","魚の知識","野菜の知識","チーズの知識","洋菓子の知識","和菓子の知識","食器の知識","婚礼料理・パーティーメニュー","テーブルマナー","着物の着付け","出店開業ノウハウ","店舗運営","メニュー開発","仕入れ・食材の目利き","待遇・福利厚生（説明）"];
 
 const CONFIG = {
     prefs: ["北海道","青森県","岩手県","宮城県","秋田県","山形県","福島県","茨城県","栃木県","群馬県","埼玉県","千葉県","東京都","神奈川県","新潟県","富山県","石川県","福井県","山梨県","長野県","岐阜県","静岡県","愛知県","三重県","滋賀県","京都府","大阪府","兵庫県","奈良県","和歌山県","鳥取県","島根県","岡山県","広島県","山口県","徳島県","香川県","愛媛県","高知県","福岡県","佐賀県","長崎県","熊本県","大分県","宮崎県","鹿児島県","沖縄県"],
@@ -1052,10 +1054,10 @@ function buildCSVContent() {
     const rows = [CSV_HEADERS.join(',')];
     document.querySelectorAll('#jobList .job-card').forEach(c => {
         const get = n => (c.querySelector(`[name="${n}"]`)?.value || '').replace(/"/g,'""');
-        const chk = n => c.querySelector(`[name="${n}"]`)?.checked ? '1' : '';
+        const chk = n => c.querySelector(`[name="${n}"]`)?.checked ? '〇' : '';
         const benMap = {'ben_makanai':'まかない・食事補助あり','ben_ins':'社会保険完備','ben_uniform':'制服貸与','ben_training':'研修充実','ben_overseas':'海外研修','ben_visit':'生産者訪問','ben_license':'資格取得支援','ben_car':'車・バイク通勤OK','ben_emp':'社員登用あり','ben_hair':'髪型自由'};
         const benLabels = Object.entries(benMap).filter(([k])=>c.querySelector(`[name="${k}"]`)?.checked).map(([,v])=>v);
-        const r = ['',`"${get('job_title')}"`,`"${get('employment_type')}"`,chk('char_no_resume'),chk('char_new_grad'),chk('char_inexperienced'),chk('char_independent'),chk('char_experienced'),`"${get('salary_type')}"`,get('salary_min'),get('salary_max'),`"${get('salary_note').replace(/\n/g,' ')}"`,chk('ben_bonus'),chk('ben_rise'),chk('ben_dorm'),chk('ben_train_full'),chk('ben_family'),chk('ben_skill'),chk('ben_incentive'),chk('ben_retire'),chk('ben_daily'),chk('ben_fuyo'),`"${get('qualification')}"`,`"${get('work_time_text')}"`,chk('work_lunch'),chk('work_train'),chk('work_w'),chk('work_full'),chk('work_ot'),`"${get('holiday_text')}"`,chk('hol_8'),chk('hol_9'),chk('hol_2'),chk('hol_baby'),chk('hol_summer'),chk('hol_winter'),chk('hol_gw'),chk('hol_spec'),`"${benLabels.join('／')}"`,`"${get('ben_text')}"`,chk('ben_makanai'),chk('ben_ins'),chk('ben_uniform'),chk('ben_training'),chk('ben_overseas'),chk('ben_visit'),chk('ben_license'),chk('ben_car'),chk('ben_emp'),chk('ben_hair'),`"${get('content').replace(/\n/g,'<br>')}"`,chk('sk_latte'),chk('sk_knife'),chk('sk_deco'),chk('sk_pizza'),chk('sk_noodle'),chk('sk_sushi'),chk('sk_plating'),chk('sk_bread'),chk('sk_pastry'),chk('sk_cocktail'),chk('sk_premium'),chk('sk_english'),chk('kn_wine'),chk('kn_sake'),chk('kn_liquor'),chk('kn_coffee'),chk('kn_tea'),chk('kn_meat'),chk('kn_fish'),chk('kn_vege'),chk('kn_cheese'),chk('kn_w_sweets'),chk('kn_j_sweets'),chk('kn_tableware'),chk('kn_wedding'),chk('kn_manner'),chk('kn_kimono'),chk('no_open'),chk('no_mgmt'),chk('no_menu'),chk('no_stock')];
+        const r = ['',`"${get('job_title')}"`,`"${get('employment_type')}"`,chk('char_no_resume'),chk('char_new_grad'),chk('char_inexperienced'),chk('char_independent'),chk('char_experienced'),`"${get('salary_type')}"`,get('salary_min'),get('salary_max'),`"${get('salary_note').replace(/\n/g,' ')}"`,chk('ben_bonus'),chk('ben_rise'),chk('ben_dorm'),chk('ben_train_full'),chk('ben_family'),chk('ben_skill'),chk('ben_incentive'),chk('ben_retire'),chk('ben_daily'),chk('ben_fuyo'),`"${get('qualification')}"`,`"${get('work_time_text')}"`,chk('work_lunch'),chk('work_train'),chk('work_w'),chk('work_full'),chk('work_ot'),`"${get('holiday_text')}"`,chk('hol_8'),chk('hol_9'),chk('hol_2'),chk('hol_baby'),chk('hol_summer'),chk('hol_winter'),chk('hol_gw'),chk('hol_spec'),`"${benLabels.join('／')}"`,chk('ben_makanai'),chk('ben_ins'),chk('ben_uniform'),chk('ben_training'),chk('ben_overseas'),chk('ben_visit'),chk('ben_license'),chk('ben_car'),chk('ben_emp'),chk('ben_hair'),`"${get('content').replace(/\n/g,'<br>')}"`,chk('sk_latte'),chk('sk_knife'),chk('sk_deco'),chk('sk_pizza'),chk('sk_noodle'),chk('sk_sushi'),chk('sk_plating'),chk('sk_bread'),chk('sk_pastry'),chk('sk_cocktail'),chk('sk_premium'),chk('sk_english'),chk('kn_wine'),chk('kn_sake'),chk('kn_liquor'),chk('kn_coffee'),chk('kn_tea'),chk('kn_meat'),chk('kn_fish'),chk('kn_vege'),chk('kn_cheese'),chk('kn_w_sweets'),chk('kn_j_sweets'),chk('kn_tableware'),chk('kn_wedding'),chk('kn_manner'),chk('kn_kimono'),chk('no_open'),chk('no_mgmt'),chk('no_menu'),chk('no_stock'),`"${get('ben_text')}"`];
         rows.push(r.join(','));
     });
     return '\uFEFF' + rows.join('\n');
