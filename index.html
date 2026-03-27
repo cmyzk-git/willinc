@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アットリス - 営業のすべてを、「アッ」という間に。</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .hero-bg {
+            background: radial-gradient(circle at top right, #eff6ff 0%, #ffffff 70%);
+        }
+        .cta-button {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .cta-button:hover {
+            transform: scale(1.03);
+        }
+        .pulse-blue {
+            animation: pulse-blue 2s infinite;
+        }
+        @keyframes pulse-blue {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+        .atto-text {
+            color: #2563eb;
+            font-weight: 900;
+        }
+        
+        /* Table Styles */
+        .roi-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .roi-table th, .roi-table td {
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .roi-table tr:last-child td {
+            border-bottom: none;
+        }
+        .ai-column {
+            background-color: #f8fbff;
+            border-left: 4px solid #2563eb;
+            border-right: 4px solid #2563eb;
+            position: relative;
+        }
+        .ai-header {
+            background-color: #2563eb !important;
+            color: white !important;
+            border-top: 4px solid #2563eb;
+            border-top-left-radius: 1.5rem;
+            border-top-right-radius: 1.5rem;
+        }
+        .ai-footer-cell {
+            border-bottom: 4px solid #2563eb !important;
+            border-bottom-left-radius: 1.5rem;
+            border-bottom-right-radius: 1.5rem;
+        }
+
+        .scroll-container {
+            display: flex;
+            width: max-content;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-scroll {
+            animation: scroll var(--scroll-duration, 40s) linear infinite;
+        }
+
+        .modal-overlay {
+            background-color: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+
+        /* Custom Checkbox Design */
+        .captcha-box {
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            border-radius: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .captcha-box:hover {
+            border-color: #cbd5e1;
+            background: #f1f5f9;
+        }
+        .custom-checkbox {
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 0.5rem;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            transition: all 0.2s;
+        }
+        #spam-check:checked + .custom-checkbox {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+        #spam-check:checked + .custom-checkbox [data-lucide="check"] {
+            display: block !important;
+        }
+
+        /* Audio Wave Animation */
+        .wave-bar {
+            width: 3px;
+            height: 4px;
+            background-color: #2563eb;
+            margin: 0 1px;
+            border-radius: 4px;
+        }
+        .playing .wave-bar {
+            animation: wave 1s ease-in-out infinite;
+        }
+        @keyframes wave {
+            0%, 100% { height: 4px; }
+            50% { height: 16px; }
+        }
+        
+                /* ── ハンバーガーメニュー ── */
+        .hamburger-line {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .menu-open .hamburger-line:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+        .menu-open .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-open .hamburger-line:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+        #mobile-drawer {
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateX(100%);
+        }
+        #mobile-drawer.drawer-open {
+            transform: translateX(0);
+        }
+        #drawer-overlay {
+            transition: opacity 0.35s ease;
+        }
+
+    </style>
+
+    <script>
+        /**
+         * CONFIG: 音声データアセット設定（保守運用五則 第2条に準拠）
+         * 新しい音声を追加する場合は、この配列にオブジェクトを追加してください。
+         * url: 音声ファイルのURL（.wav, .webm, .mp3等）
+         * title: 表示名
+         * label: カテゴリタグ
+         * desc: 説明文
+         */
+        const AUDIO_CONFIG = [
+            {
+                id: 'audio-service',
+                url: 'https://www.willinc.co.jp/media/1_first_greeting-attolis.wav', // 仮データ（WAV/WEBMに差し替え可能）
+                title: 'アットリス サービス案内',
+                label: 'Service Guide',
+                desc: 'AIによるアットリスの概要と、営業現場での活用メリットを解説します。'
+            },
+            {
+                id: 'audio-recruitment',
+                url: 'https://www.willinc.co.jp/media/1_first_greeting-idc.wav', // 仮データ（WAV/WEBMに差し替え可能）
+                title: '飲食店求人専門サイト案内',
+                label: 'Vertical Solution',
+                desc: '飲食店向けに特化したAI架電のシナリオ例と導入効果について。'
+            }
+        ];
+
+        window.submitted = false;
+        let currentMode = 'demo'; 
+        let currentAudio = null;
+        let currentAudioId = null;
+
+        /**
+         * 音声再生・一時停止のトグ制御
+         * @param {string} id - AUDIO_CONFIGのID
+         */
+        function toggleAudio(id) {
+            const asset = AUDIO_CONFIG.find(a => a.id === id);
+            const card = document.getElementById(`card-${id}`);
+            const btn = document.getElementById(`btn-${id}`);
+            const iconContainer = btn.querySelector('.icon-container');
+
+            try {
+                if (currentAudioId === id) {
+                    if (currentAudio.paused) {
+                        currentAudio.play();
+                        card.classList.add('playing');
+                        iconContainer.innerHTML = '<i data-lucide="pause" class="w-6 h-6 text-white"></i>';
+                    } else {
+                        currentAudio.pause();
+                        card.classList.remove('playing');
+                        iconContainer.innerHTML = '<i data-lucide="play" class="w-6 h-6 text-white"></i>';
+                    }
+                } else {
+                    if (currentAudio) {
+                        currentAudio.pause();
+                        const prevCard = document.getElementById(`card-${currentAudioId}`);
+                        const prevBtn = document.getElementById(`btn-${currentAudioId}`);
+                        if (prevCard) prevCard.classList.remove('playing');
+                        if (prevBtn) prevBtn.querySelector('.icon-container').innerHTML = '<i data-lucide="play" class="w-6 h-6 text-white"></i>';
+                    }
+
+                    currentAudio = new Audio(asset.url);
+                    currentAudioId = id;
+                    currentAudio.play();
+                    card.classList.add('playing');
+                    iconContainer.innerHTML = '<i data-lucide="pause" class="w-6 h-6 text-white"></i>';
+
+                    currentAudio.onended = () => {
+                        card.classList.remove('playing');
+                        iconContainer.innerHTML = '<i data-lucide="play" class="w-6 h-6 text-white"></i>';
+                        currentAudio = null;
+                        currentAudioId = null;
+                        lucide.createIcons();
+                    };
+                }
+                lucide.createIcons();
+            } catch (e) {
+                console.error("Audio Playback Error:", e);
+            }
+        }
+
+        function handleFormSubmit(e) {
+            const spamCheck = document.getElementById('spam-check');
+            if (!spamCheck || !spamCheck.checked) {
+                if (e) e.preventDefault();
+                document.getElementById('spam-error').classList.remove('hidden');
+                return false;
+            }
+            document.getElementById('spam-error').classList.add('hidden');
+            window.submitted = true;
+            return true;
+        }
+
+        function showSuccessState() {
+            if (!window.submitted) return;
+            document.getElementById('cta-form').classList.add('hidden');
+            document.getElementById('success-state').classList.remove('hidden');
+            const downloadArea = document.getElementById('download-link-area');
+            if (currentMode === 'download') downloadArea.classList.remove('hidden');
+            else downloadArea.classList.add('hidden');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function openModal(mode = 'demo') {
+            currentMode = mode;
+            const modal = document.getElementById('cta-modal');
+            const title = document.getElementById('modal-title');
+            const typeField = document.getElementById('modal-type-field');
+            if (mode === 'download') { title.innerText = "資料ダウンロード"; typeField.value = "download"; }
+            else { title.innerText = "無料デモに関する問い合わせ"; typeField.value = "demo"; }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            window.submitted = false; 
+            document.getElementById('cta-form').classList.remove('hidden');
+            document.getElementById('success-state').classList.add('hidden');
+            document.getElementById('spam-check').checked = false;
+            document.getElementById('spam-error').classList.add('hidden');
+            setTimeout(() => {
+                const content = modal.querySelector('.modal-content');
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('opacity-100', 'scale-100');
+            }, 10);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('cta-modal');
+            const content = modal.querySelector('.modal-content');
+            content.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        window.onload = function() {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            // Render Audio Cards (新機能：動的生成)
+            const audioGrid = document.getElementById('audio-grid');
+            if (audioGrid) {
+                AUDIO_CONFIG.forEach(asset => {
+                    const card = document.createElement('div');
+                    card.id = `card-${asset.id}`;
+                    card.className = "bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex items-center gap-5 md:gap-8 group hover:border-blue-200 transition-all duration-300";
+                    card.innerHTML = `
+                        <div class="relative shrink-0">
+                            <button id="btn-${asset.id}" onclick="toggleAudio('${asset.id}')" class="w-16 h-16 md:w-20 md:h-20 bg-blue-600 rounded-full flex items-center justify-center shadow-xl shadow-blue-100 group-hover:bg-blue-700 transition transform hover:scale-105">
+                                <span class="icon-container"><i data-lucide="play" class="w-7 h-7 md:w-8 md:h-8 text-white ml-1"></i></span>
+                            </button>
+                            <div class="absolute -bottom-1 -right-1 flex items-end h-6 px-1 bg-white rounded-full border border-slate-100 py-1">
+                                <div class="wave-bar" style="animation-delay: 0.1s"></div>
+                                <div class="wave-bar" style="animation-delay: 0.3s"></div>
+                                <div class="wave-bar" style="animation-delay: 0.2s"></div>
+                                <div class="wave-bar" style="animation-delay: 0.4s"></div>
+                            </div>
+                        </div>
+                        <div class="text-left flex-grow">
+                            <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded mb-2 inline-block">${asset.label}</span>
+                            <h4 class="text-lg md:text-xl font-black italic tracking-tighter text-slate-900 leading-none">${asset.title}</h4>
+                            <p class="text-slate-400 text-xs md:text-sm font-bold mt-2 leading-relaxed">${asset.desc}</p>
+                        </div>
+                    `;
+                    audioGrid.appendChild(card);
+                });
+                lucide.createIcons();
+            }
+
+            // Case Studies Scroll (既存機能)
+            const track = document.getElementById('case-scroll-track');
+            if (track) {
+                const cases = [
+                    { title: "人材紹介 A社", effect: "リスト作成時間 85%削減", desc: "月200時間の事務作業を自動化し、RAの面談数が2倍に。" },
+                    { title: "SaaS企業 B社", effect: "アポ獲得率 1.4倍", desc: "AIアポインターによる即時対応で、休眠リードの掘り起こしに成功。" },
+                    { title: "不動産 C社", effect: "架電コスト 60%カット", desc: "確度の高い顧客にのみ営業が集中。成約までのスピードが劇的に向上。" },
+                    { title: "広告代理店 D社", effect: "SFA入力漏れ ゼロ", desc: "商談終了後の自動転記により、営業管理の精度が大幅に向上。" }
+                ];
+                [...cases, ...cases].forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 w-[300px] flex-shrink-0";
+                    card.innerHTML = `<p class="text-blue-600 font-black text-xs mb-2 uppercase tracking-widest">${c.title}</p><h4 class="text-xl font-black mb-4 italic">${c.effect}</h4><p class="text-slate-500 text-sm font-bold leading-relaxed">${c.desc}</p>`;
+                    track.appendChild(card);
+                });
+            }
+        };
+    </script>
+</head>
+<body class="text-slate-900 bg-white leading-relaxed">
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-sm border-b border-slate-100">
+        <div class="max-w-6xl mx-auto px-4 flex justify-between items-center h-16">
+            <div class="flex items-center">
+    <img src="logo.svg" alt="Attolis" class="h-8 w-auto">
+</div>
+            <nav class="hidden lg:flex items-center space-x-6 text-sm font-bold text-slate-600">
+                <a href="#features" class="hover:text-blue-600 transition">特徴</a>
+                <a href="#cases" class="hover:text-blue-600 transition">事例</a>
+                <a href="#audio-experience" class="hover:text-blue-600 transition">音声体験</a>
+                <a href="#simulator" class="hover:text-blue-600 transition">ROI</a>
+                <a href="#pricing" class="hover:text-blue-600 transition">料金</a>
+                <div class="h-4 w-[1px] bg-slate-200"></div>
+                <a href="idc.html" class="hover:text-blue-600 transition">飲食店ドットコム事業</a>
+                <div class="h-4 w-[1px] bg-slate-200"></div>
+                <a href="corporate_info.html" target="_blank" class="hover:text-blue-600 transition text-nowrap">会社概要</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <button onclick="openModal('download')" class="hidden sm:flex items-center text-sm font-bold text-blue-600 border border-blue-600 px-4 py-2 rounded-full hover:bg-blue-50 transition">
+                    <span data-lucide="file-text" class="w-4 h-4 mr-1.5"></span>資料請求
+                </button>
+                <button onclick="openModal('demo')" class="cta-button bg-blue-600 text-white px-5 py-2 rounded-full font-bold text-sm hover:bg-blue-700 shadow-lg shadow-blue-200 transition">
+                    無料で試す
+                </button>
+                
+                                <!-- ハンバーガーボタン（lg未満で表示） -->
+                <button id="hamburger-btn" onclick="toggleDrawer()"
+                    class="lg:hidden flex flex-col justify-center items-center w-10 h-10 rounded-full hover:bg-slate-100 transition ml-1 shrink-0"
+                    aria-label="メニューを開く">
+                    <span class="hamburger-line block w-5 h-0.5 bg-slate-800 mb-1.5"></span>
+                    <span class="hamburger-line block w-5 h-0.5 bg-slate-800 mb-1.5"></span>
+                    <span class="hamburger-line block w-5 h-0.5 bg-slate-800"></span>
+                </button>
+
+                
+            </div>
+        </div>
+    </header>
+
+    <!-- ドロワーオーバーレイ -->
+    <div id="drawer-overlay"
+        class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm hidden opacity-0"
+        onclick="toggleDrawer()">
+    </div>
+
+    <!-- スマホ用ドロワーメニュー（右からスライドイン） -->
+    <div id="mobile-drawer"
+        class="fixed top-0 right-0 z-50 h-full w-[280px] bg-white shadow-2xl flex flex-col">
+
+        <!-- ドロワーヘッダー -->
+        <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+            <div class="mb-6">
+    <img src="logo.svg" alt="Attolis" class="h-8 w-auto">
+</div>
+            <button onclick="toggleDrawer()"
+                class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition text-slate-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                    stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+
+        <!-- ナビゲーションリンク（遷移ページのみ） -->
+        <nav class="flex-1 overflow-y-auto px-4 py-6">
+            <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 px-3 mb-3">Company</p>
+            <ul class="space-y-1">
+                <li>
+                    <a href="idc.html"
+                        class="flex items-center justify-between px-3 py-3.5 rounded-2xl text-sm font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition">
+                        飲食店ドットコム事業
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" class="text-slate-400"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </a>
+                </li>
+                <li>
+                    <a href="corporate_info.html" target="_blank"
+                        class="flex items-center justify-between px-3 py-3.5 rounded-2xl text-sm font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition">
+                        会社概要
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" class="text-slate-400"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- ドロワー下部CTA -->
+        <div class="px-4 pb-8 pt-4 border-t border-slate-100 space-y-3">
+            <button onclick="toggleDrawer(); openModal('download');"
+                class="w-full py-3 border-2 border-blue-600 text-blue-600 rounded-2xl font-black text-sm hover:bg-blue-50 transition">
+                資料請求
+            </button>
+            <button onclick="toggleDrawer(); openModal('demo');"
+                class="w-full py-3.5 bg-blue-600 text-white rounded-2xl font-black text-sm hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                無料で試す
+            </button>
+        </div>
+    </div>
+    
+    <!-- Hero Section -->
+    <section class="hero-bg pt-32 pb-20 overflow-hidden border-b border-slate-50">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <div class="inline-flex items-center bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-xs font-black mb-8 border border-blue-100">
+                営業の「単純作業」をAIが引き受ける。
+            </div>
+            <h2 class="text-5xl md:text-8xl font-black leading-tight text-slate-900 mb-8 tracking-tighter">
+                営業のすべてを、<br><span class="atto-text italic text-blue-600">「アッ」</span>という間に。
+            </h2>
+            
+            <div class="text-lg md:text-xl text-slate-600 mb-12 max-w-4xl mx-auto font-medium leading-relaxed">
+                <p>リスト作成、確度の低い架電、事務処理。営業担当者が抱える「付随業務」をAIが代行。<br class="hidden md:block">プロフェッショナルが成果に直結する業務に、「一瞬」でシフトできる環境を作ります。</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                <button onclick="openModal('download')" class="cta-button w-full sm:w-auto bg-white text-blue-600 border-2 border-blue-600 text-lg px-10 py-4 rounded-2xl font-bold hover:bg-blue-50 shadow-sm flex items-center justify-center">
+                    <span data-lucide="download" class="mr-2 w-5 h-5"></span> 資料をダウンロード
+                </button>
+                <a href="#simulator" class="cta-button w-full sm:w-auto bg-blue-600 text-white text-lg px-10 py-4 rounded-2xl font-bold hover:bg-blue-700 shadow-xl flex items-center justify-center">
+                    導入メリットを比較する <span data-lucide="arrow-right" class="ml-2 w-5 h-5"></span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-24 bg-white overflow-hidden scroll-mt-20">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="max-w-xl mb-16">
+                <h2 class="text-3xl md:text-5xl font-black tracking-tighter mb-4 italic leading-tight">
+                    <span class="text-blue-600">ルーチン</span>をAIへ、<br>成果を営業へ.
+                </h2>
+                <p class="text-slate-600 font-bold text-lg">営業の価値を最大化する, アットリスの3つのサポート。</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-slate-50 p-8 rounded-[2.5rem] shadow-sm border border-slate-200 relative group hover:border-blue-400 transition-colors duration-300">
+                    <span class="absolute top-4 right-6 text-5xl font-black text-slate-200 italic group-hover:text-blue-100">01</span>
+                    <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-8">
+                        <span data-lucide="list-checks" class="text-blue-600 w-8 h-8"></span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 italic leading-tight">リスト作成時間を、<br>「ゼロ」へ。</h3>
+                    <p class="text-slate-500 font-medium leading-relaxed">
+                        求人媒体や独自DBから最適なターゲットをAIが瞬時に選定。手作業でのリストアップ時間を100%カット。
+                    </p>
+                </div>
+                <div class="bg-blue-600 p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden transform hover:scale-[1.02] transition-transform duration-300">
+                    <span class="absolute top-4 right-6 text-5xl font-black text-blue-500 italic">02</span>
+                    <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-8 backdrop-blur-sm">
+                        <span data-lucide="phone-forwarded" class="text-white w-8 h-8"></span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 italic leading-tight">一次対応は、<br>AIアポインター。</h3>
+                    <p class="text-blue-100 font-medium leading-relaxed">
+                        「興味がある」顧客の特定までをAIが自動で実施。営業は, 話を聞く姿勢が整った顧客と対面するだけ。
+                    </p>
+                </div>
+                <div class="bg-slate-50 p-8 rounded-[2.5rem] shadow-sm border border-slate-200 relative group hover:border-blue-400 transition-colors duration-300">
+                    <span class="absolute top-4 right-6 text-5xl font-black text-slate-200 italic group-hover:text-blue-100">03</span>
+                    <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-8">
+                        <span data-lucide="file-audio" class="text-blue-600 w-8 h-8"></span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 italic leading-tight">事務作業の、<br>完全自動化。</h3>
+                    <p class="text-slate-500 font-medium leading-relaxed">
+                        通話ログの記録やSFAへの転記はAIが代行。商談が終わった後、すぐに次のアクションへ移れます。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Case Studies Section -->
+    <section id="cases" class="py-24 bg-slate-50 overflow-hidden border-t border-b border-slate-100 scroll-mt-20">
+        <div class="max-w-6xl mx-auto px-4 mb-12 text-center md:text-left">
+            <h2 class="text-3xl md:text-5xl font-black italic tracking-tighter">
+                <span class="text-blue-600">進化する</span>営業現場
+            </h2>
+            <p class="text-slate-500 font-bold mt-4">付随業務をAIにシフトした企業の成功体験。</p>
+        </div>
+        <div class="relative w-full">
+            <div id="case-scroll-track" class="scroll-container animate-scroll flex gap-8 px-4"></div>
+        </div>
+    </section>
+
+    <!-- AI Audio Experience Section (New) -->
+    <section id="audio-experience" class="py-24 bg-white overflow-hidden scroll-mt-20 border-b border-slate-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-6xl font-black italic tracking-tighter mb-4 text-slate-900">
+                    AIによる<span class="text-blue-600">「生きた」</span>案内
+                </h2>
+                <p class="text-slate-500 font-bold max-w-2xl mx-auto">アットリスが生成するAI音声のクオリティを実際にご体感ください。より自然で、人間味のある対話を実現します。</p>
+            </div>
+
+            <div id="audio-grid" class="grid md:grid-cols-2 gap-8">
+                <!-- JavaScriptでAUDIO_CONFIGから生成されます -->
+            </div>
+
+            <div class="mt-16 bg-blue-600 rounded-[3rem] p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between shadow-2xl shadow-blue-200">
+                <div class="mb-8 md:mb-0 text-center md:text-left">
+                    <h3 class="text-2xl md:text-3xl font-black italic mb-2">貴社専用のシナリオで試せます</h3>
+                    <p class="text-blue-100 font-bold">デモ環境では、貴社の商材に合わせたスクリプトでAI架電をテスト可能です。</p>
+                </div>
+                <button onclick="openModal('demo')" class="bg-white text-blue-600 px-10 py-5 rounded-3xl font-black text-lg hover:bg-blue-50 transition shadow-lg">
+                    無料トライアルを開始
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI Comparison -->
+    <section id="simulator" class="py-24 bg-white overflow-hidden scroll-mt-20">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-6xl font-black mb-6 italic tracking-tighter text-slate-900">AI vs 人間の限界</h2>
+            <div class="overflow-x-auto pb-12 px-2">
+                <table class="w-full roi-table text-left bg-white rounded-[2rem] overflow-visible shadow-2xl min-w-[800px]">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-800 uppercase text-sm font-black tracking-widest">
+                            <th class="px-10 py-8 w-1/4 rounded-tl-[2rem]">比較項目</th>
+                            <th class="px-10 py-8 w-1/3 text-center">スタッフ（人間）</th>
+                            <th class="px-10 py-8 w-1/3 ai-header text-center">Attolis (AI)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="font-bold text-slate-900">
+                        <tr>
+                            <td class="px-10 py-10 bg-slate-50/80">架電スピード</td>
+                            <td class="px-10 py-10 text-center text-slate-800">20 〜 25 <span class="text-lg">件 / 時</span></td>
+                            <td class="px-10 py-10 ai-column text-center text-blue-600 text-5xl font-black italic">266 <span class="text-xl">件 / 時</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-10 py-10 bg-slate-50/80">800件架電時間</td>
+                            <td class="px-10 py-10 text-center text-slate-800">約 40 <span class="text-lg">時間</span></td>
+                            <td class="px-10 py-10 ai-column text-center text-blue-600 text-5xl font-black italic">3 <span class="text-xl">時間</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-10 py-10 bg-slate-50/80 rounded-bl-[2rem]">コスト感</td>
+                            <td class="px-10 py-10 text-center text-slate-800">20.7万円〜 / 名</td>
+                            <td class="px-10 py-10 ai-column ai-footer-cell text-center text-blue-700 text-6xl font-black italic">8 <span class="text-2xl">万円</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-24 bg-slate-900 text-white scroll-mt-20">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-5xl font-black mb-16 italic tracking-tighter">選べるプラン</h2>
+            <div class="grid lg:grid-cols-3 gap-8 items-stretch">
+                <div class="bg-slate-800 p-10 rounded-[2.5rem] text-left border border-slate-700">
+                    <h3 class="text-xl font-bold mb-4">Excelプラン</h3>
+                    <div class="text-4xl font-black mb-8 italic">4<span class="text-xl font-bold">万円〜</span></div>
+                    <ul class="space-y-4 mb-10 text-slate-400 font-bold text-sm">
+                        <li><span data-lucide="check" class="w-4 h-4 inline mr-2 text-blue-500"></span> エクセルによるリスト納品</li>
+                        <li><span data-lucide="check" class="w-4 h-4 inline mr-2 text-blue-500"></span> AIリスト抽出機能</li>
+                    </ul>
+                    <button onclick="openModal('download')" class="w-full py-4 border border-slate-600 rounded-2xl font-black hover:bg-slate-700">資料請求</button>
+                </div>
+                <div class="bg-white text-slate-900 p-10 md:p-12 rounded-[3.5rem] text-left shadow-2xl relative z-10 border-4 border-blue-600 transform lg:-translate-y-6">
+                    <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase">一番人気</div>
+                    <h3 class="text-2xl font-black mb-4 italic">Basicプラン</h3>
+                    <div class="text-6xl font-black mb-8 italic text-blue-600">8<span class="text-2xl font-bold">万円〜</span></div>
+                    <ul class="space-y-4 mb-10 font-black text-sm">
+                        <li><span data-lucide="check-circle-2" class="w-5 h-5 inline mr-2 text-blue-600"></span> AI自動架電 (一次対応)</li>
+                        <li><span data-lucide="check-circle-2" class="w-5 h-5 inline mr-2 text-blue-600"></span> SFA自動連携</li>
+                        <li><span data-lucide="check-circle-2" class="w-5 h-5 inline mr-2 text-blue-600"></span> リスト無制限ダウンロード</li>
+                    </ul>
+                    <button onclick="openModal('demo')" class="w-full py-5 bg-blue-600 text-white rounded-3xl font-black text-xl shadow-xl hover:bg-blue-700">無料で試す</button>
+                </div>
+                <div class="bg-slate-800 p-10 rounded-[2.5rem] text-left border border-slate-700">
+                    <h3 class="text-xl font-bold mb-4">Premiumプラン</h3>
+                    <div class="text-4xl font-black mb-8 italic">ASK</div>
+                    <ul class="space-y-4 mb-10 text-slate-400 font-bold text-sm">
+                        <li><span data-lucide="check-circle-2" class="w-5 h-5 inline mr-2 text-blue-600"></span> Basicプランの全機能</li>
+                        <li><span data-lucide="zap" class="w-4 h-4 inline mr-2 text-blue-500"></span> 個別システム改修</li>
+                    </ul>
+                    <button onclick="openModal('demo')" class="w-full py-4 border border-slate-600 rounded-2xl font-black hover:bg-slate-700">導入相談</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white pt-24 pb-12 border-t border-slate-100">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between gap-12 mb-16">
+                <div class="max-w-sm">
+                    <div class="mb-6">
+    <img src="logo.svg" alt="Attolis" class="h-8 w-auto">
+</div>
+                                        <p class="text-slate-500 font-bold leading-relaxed mb-6">AIで営業現場の「単純作業」を自動化し、プロが本来の価値を発揮できる社会を実現します。</p>
+                       <div class="flex flex-col space-y-2">
+                        <a href="idc.html" class="text-sm font-black text-slate-900 hover:text-blue-600 transition flex items-center">
+                             飲食店ドットコム事業 <span data-lucide="chevron-right" class="w-4 h-4 ml-1"></span>
+                        </a>
+                        <a href="corporate_info.html" target="_blank" class="text-sm font-black text-slate-900 hover:text-blue-600 transition flex items-center">
+                             会社概要 <span data-lucide="chevron-right" class="w-4 h-4 ml-1"></span>
+                        </a>
+                        <a href="privacy_policy.html" target="_blank" class="text-sm font-black text-slate-900 hover:text-blue-600 transition flex items-center">
+                             プライバシーポリシー <span data-lucide="chevron-right" class="w-4 h-4 ml-1"></span>
+                        </a>
+                    </div>
+                </div>
+                    <div>
+                        <h4 class="font-black text-slate-900 mb-6 text-xs uppercase tracking-widest">Service</h4>
+                        <ul class="space-y-3 text-sm font-bold text-slate-500">
+                            <li><a href="#features" class="hover:text-blue-600">機能</a></li>
+                            <li><a href="#cases" class="hover:text-blue-600">事例</a></li>
+                            <li><a href="#pricing" class="hover:text-blue-600">プラン</a></li>
+                        </ul>
+                    </div>
+                   <div>
+                        <h4 class="font-black text-slate-900 mb-6 text-xs uppercase tracking-widest">Operation</h4>
+                        <p class="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Planning & Development</p>
+                        <p class="text-sm font-bold text-slate-900 mb-4">株式会社ゼプトス</p>
+                        
+                        <p class="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Sales & Management</p>
+                        <p class="text-sm font-bold text-slate-900 mb-2">株式会社ウイル（will.Inc）</p>
+                        <div class="mt-4 mb-4">
+                            <p class="text-sm font-black text-slate-900 flex items-center mb-1">
+                                <span data-lucide="phone" class="w-4 h-4 mr-2 text-blue-600"></span> TEL：0120-432-381
+                            </p>
+                            <p class="text-[10px] font-bold text-slate-500 bg-slate-100 inline-block px-2 py-1 rounded">
+                                受付時間：平日 9:00～18:00
+                            </p>
+                        </div>
+                        <a href="https://zeptos.jp/" class="text-xs font-black text-blue-600 hover:underline">Zeptos INC. Official Web <span data-lucide="external-link" class="w-3 h-3 inline"></span></a>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                <p>&copy; 2026 Will inc. All Rights Reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="privacy_policy.html" target="_blank" class="hover:text-slate-900 transition">Privacy Policy</a>
+                    <a href="corporate_info.html" target="_blank" class="hover:text-slate-900 transition">Company</a>
+                    <a href="#" class="hover:text-slate-900 transition">Terms</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div id="cta-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+        <div class="modal-overlay absolute inset-0" onclick="closeModal()"></div>
+        <div class="modal-content relative bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden opacity-0 scale-95 flex flex-col max-h-[95vh]">
+            <div class="p-10 pb-4 flex justify-between items-start shrink-0">
+                <h3 id="modal-title" class="text-3xl font-black italic tracking-tighter">資料ダウンロード</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-900 p-2 transition">
+                    <span data-lucide="x" class="w-8 h-8"></span>
+                </button>
+            </div>
+            
+            <div class="overflow-y-auto px-10 pb-10">
+                <form id="cta-form" 
+      action="" 
+      method="POST" 
+      class="space-y-4" 
+      onsubmit="submitToGas(event)">
+                    
+                    <div class="space-y-4">
+                        <input type="hidden" id="modal-type-field" name="entry.871354082" value="download">
+
+                        <div class="space-y-1">
+                            <label class="text-xs font-black text-slate-400 ml-1 flex items-center">
+                                ご社名
+                                <span class="ml-2 bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded text-[10px] tracking-normal">必須</span>
+                            </label>
+                            <input type="text" name="entry.1636064649" placeholder="株式会社アットリス" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500 transition font-bold text-slate-900">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-xs font-black text-slate-400 ml-1 flex items-center">
+                                ご担当者名
+                                <span class="ml-2 bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded text-[10px] tracking-normal">必須</span>
+                            </label>
+                            <input type="text" name="entry.14815087" placeholder="営業 太郎" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500 transition font-bold text-slate-900">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-xs font-black text-slate-400 ml-1 flex items-center">
+                                    メールアドレス
+                                    <span class="ml-2 bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded text-[10px] tracking-normal">必須</span>
+                                </label>
+                                <input type="email" name="entry.619079053" placeholder="example@attolis.jp" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500 transition font-bold text-slate-900">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs font-black text-slate-400/60 ml-1 flex items-center">
+                                    お電話番号
+                                    <span class="ml-2 bg-slate-200 text-slate-500 px-1.5 py-0.5 rounded text-[10px] tracking-normal">任意</span>
+                                </label>
+                                <input type="tel" name="entry.15373019" placeholder="03-1234-5678" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500 transition font-bold text-slate-900">
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-xs font-black text-slate-400/60 ml-1 flex items-center">
+                                メッセージ
+                                <span class="ml-2 bg-slate-200 text-slate-500 px-1.5 py-0.5 rounded text-[10px] tracking-normal">任意</span>
+                            </label>
+                            <textarea name="entry.345386200" rows="2" placeholder="ご質問などあれば（未入力でも送信可能です）" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500 transition resize-none font-bold text-slate-900"></textarea>
+                        </div>
+                        
+                        <div class="pt-2">
+                            <label class="captcha-box group" for="spam-check">
+                                <input type="checkbox" id="spam-check" class="hidden">
+                                <div class="custom-checkbox">
+                                    <span data-lucide="check" class="w-4 h-4 text-white hidden"></span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-black text-slate-700">上記の内容で間違いありません</span>
+                                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Confirmation Required</span>
+                                </div>
+                                <div class="ml-auto flex items-center opacity-40 group-hover:opacity-100 transition">
+                                    <span data-lucide="shield-check" class="w-5 h-5 text-blue-600"></span>
+                                </div>
+                            </label>
+                            <p id="spam-error" class="text-[10px] text-red-500 font-bold mt-2 ml-1 hidden italic">※ 送信するには確認チェックを入れてください。</p>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-black py-5 rounded-3xl shadow-xl shadow-blue-100 hover:bg-blue-700 transition text-lg">情報を送信する</button>
+                </form>
+
+                <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="showSuccessState()"></iframe>
+
+                <div id="success-state" class="hidden py-8 text-center space-y-8">
+                    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                        <span data-lucide="check" class="w-10 h-10"></span>
+                    </div>
+                    <div class="space-y-3">
+                        <h3 class="text-2xl font-black italic">送信が完了しました</h3>
+                        <p class="text-slate-500 font-bold leading-relaxed text-sm">ご入力いただいたアドレス宛に、資料または<br>担当者よりご連絡を差し上げます。</p>
+                    </div>
+                    <div id="download-link-area" class="hidden pt-4 pb-2">
+                        <a href="https://drive.google.com/file/d/1GGbhIrbkCFgnL1xqV34QIjejvbE0kRyT/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="inline-flex items-center bg-emerald-500 text-white px-8 py-4 rounded-2xl font-black hover:bg-emerald-600 transition shadow-lg shadow-emerald-100">
+                            <span data-lucide="download" class="w-5 h-5 mr-2"></span> 資料を閲覧・ダウンロード
+                        </a>
+                    </div>
+                    <button onclick="closeModal()" class="text-slate-400 font-black text-xs hover:text-slate-600 transition underline">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let drawerOpen = false;
+
+        function toggleDrawer() {
+            const drawer  = document.getElementById('mobile-drawer');
+            const overlay = document.getElementById('drawer-overlay');
+            const btn     = document.getElementById('hamburger-btn');
+
+            drawerOpen = !drawerOpen;
+
+            if (drawerOpen) {
+                overlay.classList.remove('hidden');
+                requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
+                drawer.classList.add('drawer-open');
+                btn.classList.add('menu-open');
+                document.body.style.overflow = 'hidden'; // 背景スクロール防止
+            } else {
+                overlay.classList.add('opacity-0');
+                drawer.classList.remove('drawer-open');
+                btn.classList.remove('menu-open');
+                document.body.style.overflow = '';
+                setTimeout(() => overlay.classList.add('hidden'), 350);
+            }
+        }
+        
+        /**
+ * GASのウェブアプリURLへデータを直接送信する関数
+ */
+function submitToGas(e) {
+    e.preventDefault(); // 画面遷移を防止
+
+    // スパムチェック（既存の関数）を確認
+    if (!handleFormSubmit()) return;
+
+    const form = document.getElementById('cta-form');
+    const formData = new FormData(form);
+    
+    // 【重要】デプロイ時に取得したGASのURLをここに貼り付けてください
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyjNj0zrzcYMZ4m3A2Sz1uGlhEAOrj9Z-R9drW5qyljnsw0YoUdCIUXpwEUQlMa0y3M/exec";
+
+    // GAS側の「writeContact」で定義されている項目名に合わせてデータを整理
+    const data = {
+        type: "contact", // GASの条件分岐で使用
+        company: formData.get('entry.1636064649'), // 会社名
+        name: formData.get('entry.14815087'),      // 担当者名
+        email: formData.get('entry.619079053')     // メール
+    };
+
+    // 送信ボタンを無効化
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerText = "送信中...";
+
+    // GASへPOSTリクエストを送信
+    fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors", // Google Apps ScriptへのPOSTで必要な設定
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(data).toString()
+    })
+    .then(() => {
+        window.submitted = true;
+        showSuccessState(); // 成功画面を表示
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("送信エラーが発生しました。");
+        btn.disabled = false;
+        btn.innerText = "情報を送信する";
+    });
+}
+        
+    </script>
+</body>
+</html>
