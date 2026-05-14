@@ -1,8 +1,18 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TKLJT4CB0M"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TKLJT4CB0M');
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="アットリスはIndeed・タウンワーク・ぐるなびなど25媒体以上・100万件のデータからAIが最適なリストを自動生成。不通番号ゼロ・毎日1万件更新で、営業架電の効率を最大化するAIアポインターサービスです。">
     <title>アットリス - 営業のすべてを、「アッ」という間に。</title>
     
     <!-- Tailwind CSS -->
@@ -12,14 +22,73 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
     
+    
     <style>
+    
+    img[src="logo.svg"] {
+    /* 読み込み失敗時のテキストフォールバック */
+}
+img[src="logo.svg"]::before {
+    content: none; /* imgのafterは効かないのでJS側で対応 */
+}
+    
+    /* 青いFeatureカード（02）のglow強化 */
+#features .bg-blue-600 {
+    box-shadow: 0 8px 40px rgba(37, 99, 235, 0.45);
+}
+#features .bg-blue-600:hover {
+    box-shadow: 0 12px 60px rgba(37, 99, 235, 0.65);
+}
+    
+    /* ③ に使うグラデーションテキスト */
+.gradient-text {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+    
+        /* スマホ（画面幅767px以下）の時だけh2を一括で小さくする */
+@media (max-width: 767px) {
+    h2 {
+        font-size: 2.00rem !important;
+        line-height: 1.25 !important;
+        letter-spacing: -0.05em !important; /* 少しだけ字間を詰めると、日本語は読みやすくなります */
+    }
+}
         body {
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
             scroll-behavior: smooth;
         }
         .hero-bg {
-            background: radial-gradient(circle at top right, #eff6ff 0%, #ffffff 70%);
-        }
+    background: linear-gradient(135deg, #f0f6ff 0%, #ffffff 60%, #f5f3ff 100%);
+    position: relative;
+    overflow: hidden;
+}
+.hero-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(37,99,235,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37,99,235,0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+    pointer-events: none;
+}
+/* ふわっと浮かぶ光のオーブ */
+.orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    opacity: 0.35;
+    animation: drift 10s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+@keyframes drift {
+    from { transform: translateY(0) scale(1); }
+    to   { transform: translateY(-24px) scale(1.05); }
+}
         .cta-button {
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -168,6 +237,64 @@
 
     <script>
         /**
+         * IMAGE_CONFIG: 画像アセット設定
+         * ─────────────────────────────────────────────────────────
+         * 各プロパティのURLを差し替えるだけで画像が反映されます。
+         * 未設定（空文字 ""）の場合はプレースホルダーを表示します。
+         * ─────────────────────────────────────────────────────────
+         *
+         * [hero]
+         *   main : Heroセクション右側のメインビジュアル
+         *          推奨: 横長 1200×800px / 営業・オフィス・AI活用のシーン
+         *
+         * [features]
+         *   f01  : 機能カード「リスト作成」の下部画像
+         *          推奨: 縦長 600×360px / PC画面・スプレッドシートのイメージ
+         *   f02  : 機能カード「AIアポインター」の下部画像（青背景カード用）
+         *          推奨: 縦長 600×360px / スマートフォン・電話応対のイメージ
+         *   f03  : 機能カード「事務自動化」の下部画像
+         *          推奨: 縦長 600×360px / レポート・ダッシュボードのイメージ
+         *
+         * [audio]
+         *   scene: 音声体験セクションの左側イメージ
+         *          推奨: 横長 800×500px / コールセンター・対話のシーン
+         *
+         * [social_proof]
+         *   logo1〜logo5: 導入企業ロゴ（横並びで表示）
+         *          推奨: 横長 200×80px / 白背景または透過PNG
+         */
+        const IMAGE_CONFIG = {
+            hero: {
+                main: "", // 例: "images/hero-main.jpg"
+                video: "images//hero-main.mp4"    // 動画URL（追加）例: "videos/hero.mp4"
+            },
+            features: {
+                f01: "images/feature-list.jpg", // 例: "images/feature-list.jpg"
+                f02: "images/feature-ai-call.jpg", // 例: "images/feature-ai-call.jpg"
+                f03: "images/feature-sfa.jpg"  // 例: "images/feature-sfa.jpg"
+            },
+            audio: {
+                scene: "images/audio-scene.jpg", // 例: "images/audio-scene.jpg"
+                video: "images/audio-scene.mp4"    // 動画URL（追加）例: "videos/hero.mp4"
+            },
+            social_proof: {
+                logo1: "", // 例: "images/logo-company-a.png"
+                logo2: "",
+                logo3: "",
+                logo4: "",
+                logo5: ""
+            },   // ← カンマを追加
+            cases: {
+    bg: "images/office-bg.jpg",   // 背景画像（動画設定時は無視される）
+    video: "" // ← 追加。動画優先
+},
+differentiation: {
+    bg: "images/diff-bg.jpg",   // 例: "images/diff-bg.jpg"
+    video: "" // 例: "images/diff-bg.mp4"
+}
+        };
+
+        /**
          * CONFIG: 音声データアセット設定（保守運用五則 第2条に準拠）
          * 新しい音声を追加する場合は、この配列にオブジェクトを追加してください。
          * url: 音声ファイルのURL（.wav, .webm, .mp3等）
@@ -177,16 +304,37 @@
          */
         const AUDIO_CONFIG = [
             {
-                id: 'audio-service',
-                url: 'https://www.willinc.co.jp/media/1_first_greeting-attolis.wav', // 仮データ（WAV/WEBMに差し替え可能）
-                title: 'アットリス サービス案内',
+                id: 'ai-audio-service',
+                url: 'https://www.willinc.co.jp/media/1_first_willinc.wav', // 仮データ（WAV/WEBMに差し替え可能）
+                title: 'アットリス サービス案内　<span class="text-blue-600">(AIバージョン)</span>',
                 label: 'Service Guide',
                 desc: 'AIによるアットリスの概要と、営業現場での活用メリットを解説します。'
             },
             {
+                id: 'ai-audio-service-ok',
+                url: 'https://www.willinc.co.jp/media/2_ok.wav', // 仮データ（WAV/WEBMに差し替え可能）
+                title: 'お客様から好意的なご反応が得られた際　<span class="text-blue-600">(AIバージョン)</span>',
+                label: 'Service Guide',
+                desc: 'AIから担当者へ電話をおつなぎいたします。'
+            },
+            {
+                id: 'ai-audio-service-reconfirmation',
+                url: 'https://www.willinc.co.jp/media/4_reconfirmation.wav', // 仮データ（WAV/WEBMに差し替え可能）
+                title: 'お客様からお断りのご反応が得られた際　<span class="text-blue-600">(AIバージョン)</span>',
+                label: 'Service Guide',
+                desc: 'AIによる判断で通話を終了いたします。'
+            },
+            {
+                id: 'audio-service',
+                url: 'https://www.willinc.co.jp/media/1_first_greeting-attolis.wav', // 仮データ（WAV/WEBMに差し替え可能）
+                title: 'アットリス サービス案内　<span class="text-blue-600">(録音バージョン)</span>',
+                label: 'Service Guide',
+                desc: '録音音声によるアットリスの概要と、営業現場での活用メリットを解説します。'
+            },
+            {
                 id: 'audio-recruitment',
                 url: 'https://www.willinc.co.jp/media/1_first_greeting-idc.wav', // 仮データ（WAV/WEBMに差し替え可能）
-                title: '飲食店求人専門サイト案内',
+                title: '飲食店求人専門サイト案内　<span class="text-blue-600">(録音バージョン)</span>',
                 label: 'Vertical Solution',
                 desc: '飲食店向けに特化したAI架電のシナリオ例と導入効果について。'
             }
@@ -304,31 +452,191 @@
         window.onload = function() {
             if (typeof lucide !== 'undefined') lucide.createIcons();
             
+            // --- ハッシュによるモーダル自動起動 ---
+            const hash = window.location.hash;
+            if (hash === '#download') {
+                openModal('download');
+            } else if (hash === '#demo') {
+                openModal('demo');
+            }
+
+// window.onload内に追加-パララックス
+// 修正後
+if (IMAGE_CONFIG.cases) {
+    const casesSection = document.getElementById('cases');
+
+    if (IMAGE_CONFIG.cases.video) {
+        // 動画パララックス
+        const video = document.createElement('video');
+        video.src = IMAGE_CONFIG.cases.video;
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = true;
+        video.playsInline = true;
+        video.style.cssText = `
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        `;
+        casesSection.insertBefore(video, casesSection.firstChild);
+
+    } else if (IMAGE_CONFIG.cases.bg) {
+        // 画像パララックス（動画未設定時のフォールバック）
+        casesSection.style.backgroundImage = `url('${IMAGE_CONFIG.cases.bg}')`;
+        casesSection.style.backgroundSize = 'cover';
+        casesSection.style.backgroundPosition = 'center';
+        casesSection.style.backgroundAttachment = 'fixed';
+    }
+}
+
+            // ============================================================
+            // IMAGE_CONFIG の反映処理
+            // ============================================================
+
+            // ① Hero メインビジュアル
+            // 修正後（動画優先・画像フォールバック）
+if (IMAGE_CONFIG.hero.video) {
+    // 動画が設定されている場合
+    document.getElementById('hero-image-placeholder').classList.add('hidden');
+    document.getElementById('hero-image-actual').classList.add('hidden');
+    const video = document.createElement('video');
+    video.src = IMAGE_CONFIG.hero.video;
+    video.autoplay = true;
+    video.loop = true;
+    video.muted = true;       // 自動再生にはmuted必須（ブラウザ仕様）
+    video.playsInline = true; // iOS対応
+    video.className = 'w-full aspect-[4/3] object-cover rounded-[2.5rem] shadow-2xl shadow-blue-100';
+    document.getElementById('hero-image-slot').appendChild(video);
+} else if (IMAGE_CONFIG.hero.main) {
+    // 動画なし・画像のみの場合（既存の動作）
+    document.getElementById('hero-image-placeholder').classList.add('hidden');
+    const heroImg = document.getElementById('hero-image-actual');
+    heroImg.src = IMAGE_CONFIG.hero.main;
+    heroImg.classList.remove('hidden');
+}
+
+            // ② Features カード画像（f01 / f02 / f03）
+            const featureMap = { f01: 0, f02: 1, f03: 2 };
+            document.querySelectorAll('.feature-img-slot').forEach(slot => {
+                const key = slot.dataset.slot;
+                const url = IMAGE_CONFIG.features[key];
+                if (url) {
+                    slot.querySelector('.feature-placeholder').classList.add('hidden');
+                    const img = slot.querySelector('.feature-img');
+                    img.src = url;
+                    img.classList.remove('hidden');
+                }
+            });
+
+// Differentiation セクション背景
+if (IMAGE_CONFIG.differentiation) {
+    const diffSection = document.getElementById('differentiation');
+
+    if (IMAGE_CONFIG.differentiation.video) {
+        const video = document.createElement('video');
+        video.src = IMAGE_CONFIG.differentiation.video;
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = true;
+        video.playsInline = true;
+        video.style.cssText = `
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        `;
+        diffSection.insertBefore(video, diffSection.firstChild);
+
+        // パララックス
+        window.addEventListener('scroll', function() {
+            const rect = diffSection.getBoundingClientRect();
+            const speed = 0.3;
+            const offset = -rect.top * speed;
+            video.style.transform = `translateY(${offset}px)`;
+        });
+
+    } else if (IMAGE_CONFIG.differentiation.bg) {
+        diffSection.style.backgroundImage = `url('${IMAGE_CONFIG.differentiation.bg}')`;
+        diffSection.style.backgroundSize = 'cover';
+        diffSection.style.backgroundPosition = 'center';
+        diffSection.style.backgroundAttachment = 'fixed';
+    }
+}
+
+            // ③ Audio シーン画像・動画
+            if (IMAGE_CONFIG.audio.video) {
+                // 動画が設定されている場合
+                document.getElementById('audio-scene-placeholder').classList.add('hidden');
+                document.getElementById('audio-scene-actual').classList.add('hidden');
+                const video = document.createElement('video');
+                video.src = IMAGE_CONFIG.audio.video;
+                video.autoplay = true;
+                video.loop = true;
+                video.muted = true;
+                video.playsInline = true;
+                video.className = 'w-full aspect-[4/3] object-cover rounded-[2.5rem] shadow-xl shadow-blue-100';
+                document.getElementById('audio-scene-placeholder').parentNode.appendChild(video);
+            } else if (IMAGE_CONFIG.audio.scene) {
+                // 動画なし・画像のみの場合
+                document.getElementById('audio-scene-placeholder').classList.add('hidden');
+                const audioImg = document.getElementById('audio-scene-actual');
+                audioImg.src = IMAGE_CONFIG.audio.scene;
+                audioImg.classList.remove('hidden');
+            }
+
+            // ④ ロゴ帯（social_proof）
+            const logoStrip = document.getElementById('logo-strip');
+            if (logoStrip) {
+                const logos = Object.values(IMAGE_CONFIG.social_proof).filter(Boolean);
+                if (logos.length > 0) {
+                    logoStrip.innerHTML = ''; // プレースホルダーをクリア
+                    logos.forEach(url => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.alt = '導入企業ロゴ';
+                        img.className = 'h-10 w-auto object-contain opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition duration-300';
+                        logoStrip.appendChild(img);
+                    });
+                } else {
+                    // 画像未設定時はプレースホルダーを5個表示
+                    logoStrip.innerHTML = Array(5).fill(0).map((_, i) => `
+                        <div class="h-10 w-32 rounded-xl bg-slate-200 border border-dashed border-slate-300 flex items-center justify-center">
+                            <span class="text-slate-400 font-black text-[10px]">logo${i+1}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+            
             // Render Audio Cards (新機能：動的生成)
             const audioGrid = document.getElementById('audio-grid');
             if (audioGrid) {
                 AUDIO_CONFIG.forEach(asset => {
                     const card = document.createElement('div');
                     card.id = `card-${asset.id}`;
-                    card.className = "bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex items-center gap-5 md:gap-8 group hover:border-blue-200 transition-all duration-300";
-                    card.innerHTML = `
-                        <div class="relative shrink-0">
-                            <button id="btn-${asset.id}" onclick="toggleAudio('${asset.id}')" class="w-16 h-16 md:w-20 md:h-20 bg-blue-600 rounded-full flex items-center justify-center shadow-xl shadow-blue-100 group-hover:bg-blue-700 transition transform hover:scale-105">
-                                <span class="icon-container"><i data-lucide="play" class="w-7 h-7 md:w-8 md:h-8 text-white ml-1"></i></span>
-                            </button>
-                            <div class="absolute -bottom-1 -right-1 flex items-end h-6 px-1 bg-white rounded-full border border-slate-100 py-1">
-                                <div class="wave-bar" style="animation-delay: 0.1s"></div>
-                                <div class="wave-bar" style="animation-delay: 0.3s"></div>
-                                <div class="wave-bar" style="animation-delay: 0.2s"></div>
-                                <div class="wave-bar" style="animation-delay: 0.4s"></div>
-                            </div>
-                        </div>
-                        <div class="text-left flex-grow">
-                            <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded mb-2 inline-block">${asset.label}</span>
-                            <h4 class="text-lg md:text-xl font-black italic tracking-tighter text-slate-900 leading-none">${asset.title}</h4>
-                            <p class="text-slate-400 text-xs md:text-sm font-bold mt-2 leading-relaxed">${asset.desc}</p>
-                        </div>
-                    `;
+                    card.className = "bg-white px-5 py-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 group hover:bg-blue-50 hover:border-blue-200 transition-all duration-300";
+card.innerHTML = `
+    <div class="relative shrink-0">
+        <button id="btn-${asset.id}" onclick="toggleAudio('${asset.id}')" class="w-11 h-11 bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-100 group-hover:bg-blue-700 transition transform hover:scale-105">
+            <span class="icon-container"><i data-lucide="play" class="w-4 h-4 text-white ml-0.5"></i></span>
+        </button>
+        <div class="absolute -bottom-1 -right-1 flex items-end h-4 px-0.5 bg-white rounded-full border border-slate-100 py-0.5">
+            <div class="wave-bar" style="animation-delay: 0.1s"></div>
+            <div class="wave-bar" style="animation-delay: 0.3s"></div>
+            <div class="wave-bar" style="animation-delay: 0.2s"></div>
+            <div class="wave-bar" style="animation-delay: 0.4s"></div>
+        </div>
+    </div>
+    <div class="text-left flex-grow min-w-0">
+        <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded mb-1 inline-block">${asset.label}</span>
+        <h4 class="text-sm font-black italic tracking-tighter text-slate-900 leading-snug truncate">${asset.title}</h4>
+        <p class="text-slate-400 text-xs font-bold mt-0.5 leading-relaxed line-clamp-1">${asset.desc}</p>
+    </div>
+`;
                     audioGrid.appendChild(card);
                 });
                 lucide.createIcons();
@@ -338,11 +646,58 @@
             const track = document.getElementById('case-scroll-track');
             if (track) {
                 const cases = [
-                    { title: "人材紹介 A社", effect: "リスト作成時間 85%削減", desc: "月200時間の事務作業を自動化し、RAの面談数が2倍に。" },
-                    { title: "SaaS企業 B社", effect: "アポ獲得率 1.4倍", desc: "AIアポインターによる即時対応で、休眠リードの掘り起こしに成功。" },
-                    { title: "不動産 C社", effect: "架電コスト 60%カット", desc: "確度の高い顧客にのみ営業が集中。成約までのスピードが劇的に向上。" },
-                    { title: "広告代理店 D社", effect: "SFA入力漏れ ゼロ", desc: "商談終了後の自動転記により、営業管理の精度が大幅に向上。" }
-                ];
+    { 
+        title: "人材紹介 A社", 
+        effect: "リスト作成時間 85%削減", 
+        desc: "月200時間の事務作業を自動化し、RA（リクルーティングアドバイザー）の面談数が2倍に。" 
+    },
+    { 
+        title: "人材派遣 B社", 
+        effect: "「精神的理由による離職者」ゼロを達成", 
+        desc: "断られ続ける心理的苦痛をAIが肩代わり。営業職の定着率が劇的に向上し、採用コストを大幅削減。" 
+    },
+    { 
+        title: "SaaS企業 C社", 
+        effect: "アポ獲得率 1.4倍", 
+        desc: "AIアポインターによる即時対応で、人力では手が回らなかった休眠リードの掘り起こしに成功。" 
+    },
+    { 
+        title: "不動産 E社", 
+        effect: "架電コスト 60%カット", 
+        desc: "AIが「興味あり」と判定した顧客にのみ営業が集中。成約までのリードタイムが劇的に短縮。" 
+    },
+    { 
+        title: "広告代理店 D社", 
+        effect: "SFA入力漏れ ゼロ", 
+        desc: "通話終了後の自動要約・転記により、営業管理の精度が向上。報告のための残業も解消。" 
+    },
+    { 
+        title: "広告代理店 F社", 
+        effect: "コンプライアンスの完全可視化", 
+        desc: "全通話の自動テキスト化により、強引な勧誘や言った言わないのトラブルを未然に防止。" 
+    },
+    { 
+        title: "ITサービス G社", 
+        effect: "マネジメント時間 70%削減", 
+        desc: "「もっと電話しろ」という行動管理が不要に。上司が戦略立案や部下の育成に専念できる環境を実現。" 
+    },
+    { 
+        title: "メーカー H社", 
+        effect: "新人の即戦力化が3倍速に", 
+        desc: "AIが質の高い商談のみをトスアップするため、新人が早い段階で成功体験を積み、自信を醸成。" 
+    }
+];
+
+// logo.svg フォールバック
+document.querySelectorAll('img[src="logo.svg"]').forEach(img => {
+    img.onerror = function() {
+        const span = document.createElement('span');
+        span.textContent = 'Attolis';
+        span.style.cssText = 'font-weight:900;font-size:1.25rem;color:#2563eb;letter-spacing:-0.04em;';
+        this.replaceWith(span);
+    };
+});
+
                 [...cases, ...cases].forEach(c => {
                     const card = document.createElement('div');
                     card.className = "bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 w-[300px] flex-shrink-0";
@@ -457,41 +812,64 @@
     
     <!-- Hero Section -->
     <section class="hero-bg pt-32 pb-20 overflow-hidden border-b border-slate-50">
-        <div class="max-w-6xl mx-auto px-4 text-center">
-            <div class="inline-flex items-center bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-xs font-black mb-8 border border-blue-100">
-                営業の「単純作業」をAIが引き受ける。
-            </div>
-            <h2 class="text-5xl md:text-8xl font-black leading-tight text-slate-900 mb-8 tracking-tighter">
-                営業のすべてを、<br><span class="atto-text italic text-blue-600">「アッ」</span>という間に。
-            </h2>
-            
-            <div class="text-lg md:text-xl text-slate-600 mb-12 max-w-4xl mx-auto font-medium leading-relaxed">
-                <p>リスト作成、確度の低い架電、事務処理。営業担当者が抱える「付随業務」をAIが代行。<br class="hidden md:block">プロフェッショナルが成果に直結する業務に、「一瞬」でシフトできる環境を作ります。</p>
-            </div>
+    <div class="orb w-[500px] h-[500px] bg-blue-400 top-[-100px] right-[-80px]"></div>
+    <div class="orb w-[300px] h-[300px] bg-indigo-400 bottom-[-60px] left-[-60px]" style="animation-delay:-5s"></div>
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
 
-            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <button onclick="openModal('download')" class="cta-button w-full sm:w-auto bg-white text-blue-600 border-2 border-blue-600 text-lg px-10 py-4 rounded-2xl font-bold hover:bg-blue-50 shadow-sm flex items-center justify-center">
-                    <span data-lucide="download" class="mr-2 w-5 h-5"></span> 資料をダウンロード
-                </button>
-                <a href="#simulator" class="cta-button w-full sm:w-auto bg-blue-600 text-white text-lg px-10 py-4 rounded-2xl font-bold hover:bg-blue-700 shadow-xl flex items-center justify-center">
-                    導入メリットを比較する <span data-lucide="arrow-right" class="ml-2 w-5 h-5"></span>
-                </a>
+                <!-- 左：テキストエリア -->
+                <div class="flex-1 text-center lg:text-left">
+                    <div class="inline-flex items-center bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-xs font-black mb-8 border border-blue-100">
+                        営業の「単純作業」をAIが引き受ける。
+                    </div>
+                    <h2 class="text-5xl md:text-5.5xl font-black leading-tight text-slate-900 mb-8 tracking-tighter">
+                        営業のすべてを、<br><span class="gradient-text italic font-black">「アッ」</span>という間に。
+                    </h2>
+                    <div class="text-lg md:text-xl text-slate-600 mb-12 font-medium leading-relaxed">
+                        <p>リスト作成、確度の低い架電、事務処理。営業担当者が抱える「付随業務」をAIが代行。<br class="hidden md:block">プロフェッショナルが成果に直結する業務に、「一瞬」でシフトできる環境を作ります。</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-4">
+                        <button onclick="openModal('download')" class="cta-button w-full sm:w-auto bg-white text-blue-600 border-2 border-blue-600 text-base px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 shadow-sm flex items-center justify-center">
+                            <span data-lucide="download" class="mr-2 w-5 h-5"></span> 資料をダウンロード
+                        </button>
+                        <a href="#simulator" class="cta-button w-full sm:w-auto bg-blue-600 text-white text-base px-8 py-4 rounded-2xl font-bold hover:bg-blue-700 shadow-xl flex items-center justify-center">
+                            導入メリットを比較する <span data-lucide="arrow-right" class="ml-2 w-5 h-5"></span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 右：メインビジュアル画像スロット -->
+                <!-- IMAGE_CONFIG.hero.main にURLを設定すると表示されます -->
+                <div id="hero-image-slot" class="flex-1 w-full lg:max-w-[520px] hidden lg:block">
+                    <!-- 画像が設定されていない間はプレースホルダーを表示 -->
+                    <div id="hero-image-placeholder" class="w-full aspect-[4/3] rounded-[2.5rem] bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-dashed border-blue-200 flex flex-col items-center justify-center text-center p-8">
+                        <span data-lucide="image" class="w-12 h-12 text-blue-300 mb-4"></span>
+                        <p class="text-blue-400 font-black text-sm">Hero メインビジュアル</p>
+                        <p class="text-blue-300 font-bold text-xs mt-1">IMAGE_CONFIG.hero.main にURLを設定</p>
+                        <p class="text-blue-200 font-bold text-[10px] mt-1">推奨: 1200×800px</p>
+                    </div>
+                    <img id="hero-image-actual"
+                         class="w-full aspect-[4/3] object-cover rounded-[2.5rem] shadow-2xl shadow-blue-100 hidden"
+                         alt="アットリス サービスイメージ">
+                </div>
+
             </div>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section id="features" class="py-24 bg-white overflow-hidden scroll-mt-20">
+    <section id="features" class="py-20 bg-white overflow-hidden scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4">
             <div class="max-w-xl mb-16">
                 <h2 class="text-3xl md:text-5xl font-black tracking-tighter mb-4 italic leading-tight">
-                    <span class="text-blue-600">ルーチン</span>をAIへ、<br>成果を営業へ.
+                    <span class="text-blue-600">ルーチン</span>をAIへ、<br>成果を営業へ。
                 </h2>
                 <p class="text-slate-600 font-bold text-lg">営業の価値を最大化する, アットリスの3つのサポート。</p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-8">
-                <div class="bg-slate-50 p-8 rounded-[2.5rem] shadow-sm border border-slate-200 relative group hover:border-blue-400 transition-colors duration-300">
+                <!-- Feature 01 -->
+                <div class="bg-slate-50 p-8 rounded-[2.5rem] shadow-sm border border-slate-200 relative group hover:border-blue-400 transition-colors duration-300 flex flex-col">
                     <span class="absolute top-4 right-6 text-5xl font-black text-slate-200 italic group-hover:text-blue-100">01</span>
                     <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-8">
                         <span data-lucide="list-checks" class="text-blue-600 w-8 h-8"></span>
@@ -500,8 +878,18 @@
                     <p class="text-slate-500 font-medium leading-relaxed">
                         求人媒体や独自DBから最適なターゲットをAIが瞬時に選定。手作業でのリストアップ時間を100%カット。
                     </p>
+                    <!-- 画像スロット f01 -->
+                    <div class="mt-6 rounded-2xl overflow-hidden feature-img-slot" data-slot="f01">
+                        <div class="feature-placeholder w-full h-36 bg-gradient-to-br from-slate-100 to-blue-50 border border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center">
+                            <span data-lucide="image" class="w-6 h-6 text-slate-300 mb-1"></span>
+                            <p class="text-slate-300 font-bold text-[10px]">IMAGE_CONFIG.features.f01</p>
+                        </div>
+                        <img class="feature-img w-full h-36 object-cover rounded-2xl hidden" alt="リスト作成イメージ">
+                    </div>
                 </div>
-                <div class="bg-blue-600 p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden transform hover:scale-[1.02] transition-transform duration-300">
+
+                <!-- Feature 02 -->
+                <div class="bg-blue-600 p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden transform hover:scale-[1.02] transition-transform duration-300 flex flex-col">
                     <span class="absolute top-4 right-6 text-5xl font-black text-blue-500 italic">02</span>
                     <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-8 backdrop-blur-sm">
                         <span data-lucide="phone-forwarded" class="text-white w-8 h-8"></span>
@@ -510,8 +898,18 @@
                     <p class="text-blue-100 font-medium leading-relaxed">
                         「興味がある」顧客の特定までをAIが自動で実施。営業は, 話を聞く姿勢が整った顧客と対面するだけ。
                     </p>
+                    <!-- 画像スロット f02 -->
+                    <div class="mt-6 rounded-2xl overflow-hidden feature-img-slot" data-slot="f02">
+                        <div class="feature-placeholder w-full h-36 bg-white/10 border border-dashed border-white/30 rounded-2xl flex flex-col items-center justify-center">
+                            <span data-lucide="image" class="w-6 h-6 text-white/40 mb-1"></span>
+                            <p class="text-white/40 font-bold text-[10px]">IMAGE_CONFIG.features.f02</p>
+                        </div>
+                        <img class="feature-img w-full h-36 object-cover rounded-2xl hidden opacity-80" alt="AIアポインターイメージ">
+                    </div>
                 </div>
-                <div class="bg-slate-50 p-8 rounded-[2.5rem] shadow-sm border border-slate-200 relative group hover:border-blue-400 transition-colors duration-300">
+
+                <!-- Feature 03 -->
+                <div class="bg-slate-50 p-8 rounded-[2.5rem] shadow-sm border border-slate-200 relative group hover:border-blue-400 transition-colors duration-300 flex flex-col">
                     <span class="absolute top-4 right-6 text-5xl font-black text-slate-200 italic group-hover:text-blue-100">03</span>
                     <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-8">
                         <span data-lucide="file-audio" class="text-blue-600 w-8 h-8"></span>
@@ -520,39 +918,368 @@
                     <p class="text-slate-500 font-medium leading-relaxed">
                         通話ログの記録やSFAへの転記はAIが代行。商談が終わった後、すぐに次のアクションへ移れます。
                     </p>
+                    <!-- 画像スロット f03 -->
+                    <div class="mt-6 rounded-2xl overflow-hidden feature-img-slot" data-slot="f03">
+                        <div class="feature-placeholder w-full h-36 bg-gradient-to-br from-slate-100 to-blue-50 border border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center">
+                            <span data-lucide="image" class="w-6 h-6 text-slate-300 mb-1"></span>
+                            <p class="text-slate-300 font-bold text-[10px]">IMAGE_CONFIG.features.f03</p>
+                        </div>
+                        <img class="feature-img w-full h-36 object-cover rounded-2xl hidden" alt="事務自動化イメージ">
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Case Studies Section -->
-    <section id="cases" class="py-24 bg-slate-50 overflow-hidden border-t border-b border-slate-100 scroll-mt-20">
+    <!-- 導入企業ロゴ帯 -->
+    <!-- IMAGE_CONFIG.social_proof.logo1〜5 にURLを設定すると表示されます -->
+ <!--    <section id="social-proof" class="py-12 bg-slate-50 border-t border-b border-slate-100">
+        <div class="max-w-6xl mx-auto px-4">
+            <p class="text-center text-xs font-black text-slate-400 uppercase tracking-widest mb-8">導入企業・パートナー</p>
+            <div id="logo-strip" class="flex flex-wrap items-center justify-center gap-8 md:gap-16">
+                <!-- JavaScriptでIMAGE_CONFIG.social_proofから生成されます -->
+                <!-- 画像未設定の間はプレースホルダーを表示 -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Differentiation Section -->
+<section id="differentiation" class="py-20 bg-slate-900 overflow-hidden relative">
+    <div class="absolute inset-0 bg-slate-900/75 z-0"></div>
+    <div class="relative z-10">
+    <div class="max-w-6xl mx-auto px-4">
+ 
+        <!-- ヘッダー -->
+        <div class="text-center mb-16">
+            <p class="text-xs font-black text-blue-400 uppercase tracking-widest mb-4">What Makes Us Different</p>
+            <h3 class="text-3xl md:text-5xl font-black italic tracking-tighter leading-tight text-white mb-6">
+                リストを「買う」時代から、<br>商談を<span class="text-blue-300">「自動生成」</span><br class="md:hidden">する時代へ。
+            </h3>
+            <p class="text-slate-400 font-bold text-base max-w-xl mx-auto leading-relaxed">
+                アットリスがお届けしたいのは「営業リスト」ではありません。<br>
+                私たちがお渡しするのは、「話を聞きたい」という熱量を持った商談そのもの。<br>
+膨大なデータに埋もれる時間を、未来の顧客と向き合う時間に変えていきます。<br>
+            </p>
+        </div>
+ 
+        <!-- 対比カード -->
+        <div class="grid md:grid-cols-2 gap-4 mb-16 max-w-3xl mx-auto">
+ 
+            <!-- リストツール側 -->
+            <div class="bg-slate-800 rounded-[2rem] p-8 border border-slate-700">
+                <p class="text-[12px] font-black text-slate-500 uppercase tracking-widest mb-5">一般的な営業リスト提供ツール</p>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center shrink-0 mt-0.5">
+                            <span data-lucide="minus" class="w-3 h-3 text-slate-500"></span>
+                        </span>
+                        <p class="text-slate-400 font-bold text-sm leading-relaxed">「どこに営業すべきか」を教えてくれる</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center shrink-0 mt-0.5">
+                            <span data-lucide="minus" class="w-3 h-3 text-slate-500"></span>
+                        </span>
+                        <p class="text-slate-400 font-bold text-sm leading-relaxed">その後の架電は人間が行う</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center shrink-0 mt-0.5">
+                            <span data-lucide="minus" class="w-3 h-3 text-slate-500"></span>
+                        </span>
+                        <p class="text-slate-400 font-bold text-sm leading-relaxed">断られ続ける疲弊は営業担当が負う</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center shrink-0 mt-0.5">
+                            <span data-lucide="minus" class="w-3 h-3 text-slate-500"></span>
+                        </span>
+                        <p class="text-slate-400 font-bold text-sm leading-relaxed">収集から納品まで数日のタイムラグ</p>
+                    </li>
+                </ul>
+                <div class="mt-8 pt-6 border-t border-slate-700">
+                    <p class="text-slate-500 font-black text-xs uppercase tracking-widest">納品物</p>
+                    <p class="text-slate-300 font-black text-lg mt-1">営業リスト</p>
+                </div>
+            </div>
+ 
+            <!-- アットリス側 -->
+            <div class="bg-blue-600 rounded-[2rem] p-8 relative overflow-hidden shadow-2xl shadow-blue-900">
+                <div class="absolute top-4 right-6 text-6xl font-black text-blue-500 italic select-none">AI</div>
+                <p class="text-[18px] font-black text-blue-200 uppercase tracking-widest mb-5">Attolis（アットリス）</p>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                            <span data-lucide="check" class="w-3 h-3 text-white"></span>
+                        </span>
+                        <p class="text-white font-bold text-sm leading-relaxed">AIがリスト抽出から架電までを自動で実行</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                            <span data-lucide="check" class="w-3 h-3 text-white"></span>
+                        </span>
+                        <p class="text-white font-bold text-sm leading-relaxed">「拒絶」のストレスはAIがすべて肩代わり</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                            <span data-lucide="check" class="w-3 h-3 text-white"></span>
+                        </span>
+                        <p class="text-white font-bold text-sm leading-relaxed">営業担当は「歓迎される商談」だけに集中</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+                            <span data-lucide="check" class="w-3 h-3 text-white"></span>
+                        </span>
+                        <p class="text-white font-bold text-sm leading-relaxed">最新リストから即時架電。競合より先に動く</p>
+                    </li>
+                </ul>
+                <div class="mt-8 pt-6 border-t border-white/20">
+                    <p class="text-blue-200 font-black text-xs uppercase tracking-widest">納品物</p>
+                    <p class="text-white font-black text-lg mt-1">アポイントメント</p>
+                </div>
+            </div>
+ 
+        </div>
+ 
+        <!-- 3つの強み -->
+        <div class="grid md:grid-cols-3 gap-4 mb-16">
+ 
+            <div class="bg-slate-800/90 rounded-[2rem] p-7 border border-slate-700/50">
+                <div class="w-12 h-12 bg-blue-600/20 rounded-2xl flex items-center justify-center mb-5">
+                    <span data-lucide="package-check" class="w-6 h-6 text-blue-400"></span>
+                </div>
+                <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">01</p>
+                <h4 class="text-lg font-black text-white italic leading-snug mb-3">「リスト」ではなく<br>「アポイント」を納品</h4>
+                <p class="text-slate-400 font-bold text-xs leading-relaxed">
+                    リストを渡して終わりではありません。「商品に興味がある」と意思表示した顧客だけを、担当者へ直接つなぎます。
+                </p>
+            </div>
+ 
+            <div class="bg-slate-800/90 rounded-[2rem] p-7 border border-slate-700/50">
+                <div class="w-12 h-12 bg-blue-600/20 rounded-2xl flex items-center justify-center mb-5">
+                    <span data-lucide="heart-handshake" class="w-6 h-6 text-blue-400"></span>
+                </div>
+                <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">02</p>
+                <h4 class="text-lg font-black text-white italic leading-snug mb-3">人間の感情コストを<br>AIが肩代わり</h4>
+                <p class="text-slate-400 font-bold text-xs leading-relaxed">
+                    断られ続けるアウトバウンド架電は、営業離職の最大要因です。その精神的疲弊をAIが代わりに受け止めます。
+                </p>
+            </div>
+ 
+            <div class="bg-slate-800/90 rounded-[2rem] p-7 border border-slate-700/50">
+                <div class="w-12 h-12 bg-blue-600/20 rounded-2xl flex items-center justify-center mb-5">
+                    <span data-lucide="zap" class="w-6 h-6 text-blue-400"></span>
+                </div>
+                <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">03</p>
+                <h4 class="text-lg font-black text-white italic leading-snug mb-3">競合が動く前に<br>AIが先手を打つ</h4>
+                <p class="text-slate-400 font-bold text-xs leading-relaxed">
+                    求人掲載を検知してから数秒で架電。競合他社がリストを見て電話をかけ始める前に、すでにアポイントを獲得します。
+                </p>
+            </div>
+ 
+        </div>
+ 
+        <!-- CTA -->
+        <div class="text-center">
+            <p class="text-slate-400 font-bold text-sm mb-6">
+                営業は、商談から始めよう。
+            </p>
+            <button onclick="openModal('demo')" class="cta-button inline-flex items-center bg-blue-600 text-white px-10 py-5 rounded-3xl font-black text-lg hover:bg-blue-500 transition shadow-xl shadow-blue-900">
+                無料デモを試してみる <span data-lucide="arrow-right" class="ml-2 w-5 h-5"></span>
+            </button>
+        </div>
+ 
+    </div>
+    </div>  <!-- ← </section>の直前に閉じる -->
+</section>
+    
+<!-- Data Evidence Section -->
+<section class="py-12 bg-white border-b border-slate-100">
+    <div class="max-w-6xl mx-auto px-4">
+        <!-- ヘッダー：左右に分割 -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+            <div>
+                <p class="text-xs font-black text-blue-600 uppercase tracking-widest mb-3">List Quality</p>
+                <h3 class="text-3xl md:text-5xl font-black italic tracking-tighter leading-tight">
+                    架電する前から、<br><span class="text-blue-600">勝負</span>は決まっている。
+                </h3>
+            </div>
+            <p class="text-slate-500 font-bold text-sm leading-relaxed max-w-xs md:text-left">
+                AIが抽出するリストの精度は、<br>データの量と鮮度で決まります。
+            </p>
+        </div>
+ 
+        <!-- 4つの数字カード -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+ 
+            <div class="bg-slate-50 rounded-[2rem] p-6 border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300">
+                <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mb-5">
+                    <span data-lucide="database" class="w-5 h-5 text-blue-600"></span>
+                </div>
+                <p class="text-[14px] font-black text-slate-400 uppercase tracking-widest mb-2">保有データ量</p>
+                <p class="text-5xl font-black italic text-slate-900 leading-none mb-2">100<span class="text-xl">万件</span><span class="text-lg font-bold text-blue-600">+</span></p>
+                <p class="text-xs font-bold text-slate-400 leading-relaxed">保有する企業・店舗情報</p>
+            </div>
+ 
+            <div class="bg-slate-50 rounded-[2rem] p-6 border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300">
+                <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mb-5">
+                    <span data-lucide="refresh-cw" class="w-5 h-5 text-blue-600"></span>
+                </div>
+                <p class="text-[14px] font-black text-slate-400 uppercase tracking-widest mb-2">更新頻度</p>
+                <p class="text-5xl font-black italic text-slate-900 leading-none mb-2">1<span class="text-xl">万件</span><span class="text-lg font-bold text-blue-600">/日</span></p>
+                <p class="text-xs font-bold text-slate-400 leading-relaxed">情報追加・更新数</p>
+            </div>
+ 
+            <div class="bg-blue-600 rounded-[2rem] p-6 hover:shadow-xl hover:shadow-blue-200 transition-all duration-300">
+                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mb-5">
+                    <span data-lucide="shield-check" class="w-5 h-5 text-white"></span>
+                </div>
+                <p class="text-[14px] font-black text-blue-200 uppercase tracking-widest mb-2">データ品質</p>
+                <p class="text-5xl font-black italic text-white leading-none mb-2">0<span class="text-xl">件</span></p>
+                <p class="text-xs font-bold text-blue-100 leading-relaxed">不通番号ゼロ。重複・フリーダイヤルは自動除外。</p>
+            </div>
+ 
+            <div class="bg-slate-50 rounded-[2rem] p-6 border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300">
+                <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mb-5">
+                    <span data-lucide="newspaper" class="w-5 h-5 text-blue-600"></span>
+                </div>
+                <p class="text-[14px] font-black text-slate-400 uppercase tracking-widest mb-2">情報源</p>
+                <p class="text-5xl font-black italic text-slate-900 leading-none mb-2">25<span class="text-xl">媒体</span><span class="text-lg font-bold text-blue-600">+</span></p>
+                <p class="text-xs font-bold text-slate-400 leading-relaxed">信頼できる一次情報のみ採用</p>
+            </div>
+ 
+        </div>
+ 
+        <!-- 対応媒体・絞り込み条件 -->
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+ 
+            <div class="bg-slate-50 rounded-[2rem] p-7 border border-slate-200">
+                <p class="text-[14px] font-black text-blue-600 uppercase tracking-widest mb-4">対応媒体（25媒体以上）</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">Indeed PLUS</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">タウンワーク</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">バイトル</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">リクナビNEXT</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">フロム・エーナビ</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">マイナビ</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">Green</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">ワークポート</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">Workin</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">ぐるなび</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">イーアイデム</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">はたらいく</span>
+                    <span class="bg-blue-600 text-white text-xs font-black px-3 py-1.5 rounded-full">+ その他多数</span>
+                </div>
+            </div>
+ 
+            <div class="bg-slate-50 rounded-[2rem] p-7 border border-slate-200">
+                <p class="text-[14px] font-black text-blue-600 uppercase tracking-widest mb-4">リスト絞り込み条件</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">都道府県</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">住所</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">店舗名</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">掲載元</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">電話番号</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">業種</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">職種</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">情報追加日</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">掲載終了日</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">最寄り駅</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">売上高</span>
+                    <span class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full">従業員数</span>
+                </div>
+            </div>
+ 
+        </div>
+ 
+        <!-- 課題→解決 -->
+        <div class="grid md:grid-cols-2 gap-4">
+ 
+            <div class="rounded-[2rem] border border-slate-200 overflow-hidden">
+                <div class="bg-red-50 px-7 py-4 flex items-center gap-3 border-b border-slate-200">
+                    <span data-lucide="alert-circle" class="w-4 h-4 text-red-400 shrink-0"></span>
+                    <p class="text-sm font-black text-red-400 uppercase tracking-widest">よくある課題</p>
+                </div>
+                <div class="bg-white px-7 py-5 flex items-start gap-4">
+                    <span data-lucide="user-x" class="w-5 h-5 text-slate-300 mt-0.5 shrink-0"></span>
+                    <div>
+                        <h4 class="text-base font-black text-slate-900 mb-1 leading-snug">営業が属人化し、社内で情報共有できていない</h4>
+                        <p class="text-xs font-bold text-slate-400 leading-relaxed">→ ステータス・メモの共有で属人化を解消。営業状況をリアルタイムで透明化します。</p>
+                    </div>
+                </div>
+            </div>
+ 
+            <div class="rounded-[2rem] border border-slate-200 overflow-hidden">
+                <div class="bg-red-50 px-7 py-4 flex items-center gap-3 border-b border-slate-200">
+                    <span data-lucide="alert-circle" class="w-4 h-4 text-red-400 shrink-0"></span>
+                    <p class="text-sm font-black text-red-400 uppercase tracking-widest">よくある課題</p>
+                </div>
+                <div class="bg-white px-7 py-5 flex items-start gap-4">
+                    <span data-lucide="phone-missed" class="w-5 h-5 text-slate-300 mt-0.5 shrink-0"></span>
+                    <div>
+                        <h4 class="text-base font-black text-slate-900 mb-1 leading-snug">見込みのない顧客への架電に時間を奪われている</h4>
+                        <p class="text-xs font-bold text-slate-400 leading-relaxed">→ AIが興味ある顧客のみを自動選別。営業担当はクロージングだけに集中できます。</p>
+                    </div>
+                </div>
+            </div>
+ 
+        </div>
+ 
+    </div>
+</section>
+
+<!-- Case Studies Section -->
+<section id="cases" class="py-20 overflow-hidden border-t border-b border-slate-100 scroll-mt-20 relative">
+    <div class="absolute inset-0 bg-slate-900/60 z-0"></div>
+    <div class="relative z-10">
         <div class="max-w-6xl mx-auto px-4 mb-12 text-center md:text-left">
-            <h2 class="text-3xl md:text-5xl font-black italic tracking-tighter">
-                <span class="text-blue-600">進化する</span>営業現場
-            </h2>
-            <p class="text-slate-500 font-bold mt-4">付随業務をAIにシフトした企業の成功体験。</p>
+            <h2 class="text-3xl md:text-5xl font-black italic tracking-tighter text-white">
+    <span class="text-blue-300">進化する</span>営業現場
+</h2>
+<p class="text-slate-300 font-bold mt-4">付随業務をAIにシフトした企業の成功体験。</p>
         </div>
         <div class="relative w-full">
             <div id="case-scroll-track" class="scroll-container animate-scroll flex gap-8 px-4"></div>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- AI Audio Experience Section (New) -->
-    <section id="audio-experience" class="py-24 bg-white overflow-hidden scroll-mt-20 border-b border-slate-50">
+    <section id="audio-experience" class="py-20 bg-white overflow-hidden scroll-mt-20 border-b border-slate-50">
         <div class="max-w-6xl mx-auto px-4">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-6xl font-black italic tracking-tighter mb-4 text-slate-900">
                     AIによる<span class="text-blue-600">「生きた」</span>案内
                 </h2>
-                <p class="text-slate-500 font-bold max-w-2xl mx-auto">アットリスが生成するAI音声のクオリティを実際にご体感ください。より自然で、人間味のある対話を実現します。</p>
+                <p class="text-slate-500 font-bold max-w-2xl mx-auto">アットリスが生成するAI音声のクオリティを実際にご体感ください。<br>より自然で、人間味のある対話を実現します。<br>
+実際のお客様の声をAIボイスとして再現し、トークスクリプト化することも可能です。<br>
+「誰が話すか」という説得力まで、AIで自在にコントロールできる時代へ。<br>
+                </p>
             </div>
 
-            <div id="audio-grid" class="grid md:grid-cols-2 gap-8">
-                <!-- JavaScriptでAUDIO_CONFIGから生成されます -->
+            <!-- 音声セクション：左に画像スロット、右に音声グリッド -->
+            <div class="flex flex-col lg:flex-row gap-10 items-start mb-16">
+
+                <!-- 左：音声シーン画像スロット -->
+                <!-- IMAGE_CONFIG.audio.scene にURLを設定すると表示されます -->
+                <div class="w-full lg:w-[360px] shrink-0">
+                    <div id="audio-scene-placeholder" class="w-full aspect-[4/3] rounded-[2.5rem] bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-dashed border-blue-200 flex flex-col items-center justify-center text-center p-8">
+                        <span data-lucide="mic" class="w-12 h-12 text-blue-300 mb-4"></span>
+                        <p class="text-blue-400 font-black text-sm">音声シーン画像</p>
+                        <p class="text-blue-300 font-bold text-xs mt-1">IMAGE_CONFIG.audio.scene にURLを設定</p>
+                        <p class="text-blue-200 font-bold text-[10px] mt-1">推奨: 800×600px</p>
+                    </div>
+                    <img id="audio-scene-actual"
+                         class="w-full aspect-[4/3] object-cover rounded-[2.5rem] shadow-xl shadow-blue-100 hidden"
+                         alt="AI音声対話イメージ">
+                </div>
+                <!-- 右：音声カードグリッド -->
+                <div class="flex-1">
+                    <div id="audio-grid" class="grid gap-6">
+                        <!-- JavaScriptでAUDIO_CONFIGから生成されます -->
+                    </div>
+                </div>
+
             </div>
 
-            <div class="mt-16 bg-blue-600 rounded-[3rem] p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between shadow-2xl shadow-blue-200">
+            <div class="bg-blue-600 rounded-[3rem] p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between shadow-2xl shadow-blue-200">
                 <div class="mb-8 md:mb-0 text-center md:text-left">
                     <h3 class="text-2xl md:text-3xl font-black italic mb-2">貴社専用のシナリオで試せます</h3>
                     <p class="text-blue-100 font-bold">デモ環境では、貴社の商材に合わせたスクリプトでAI架電をテスト可能です。</p>
@@ -565,7 +1292,7 @@
     </section>
 
     <!-- ROI Comparison -->
-    <section id="simulator" class="py-24 bg-white overflow-hidden scroll-mt-20">
+    <section id="simulator" class="py-20 bg-white overflow-hidden scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 text-center">
             <h2 class="text-4xl md:text-6xl font-black mb-6 italic tracking-tighter text-slate-900">AI vs 人間の限界</h2>
             <div class="overflow-x-auto pb-12 px-2">
@@ -600,7 +1327,7 @@
     </section>
 
     <!-- Pricing Section -->
-    <section id="pricing" class="py-24 bg-slate-900 text-white scroll-mt-20">
+    <section id="pricing" class="py-20 bg-slate-900 text-white scroll-mt-20">
         <div class="max-w-6xl mx-auto px-4 text-center">
             <h2 class="text-3xl md:text-5xl font-black mb-16 italic tracking-tighter">選べるプラン</h2>
             <div class="grid lg:grid-cols-3 gap-8 items-stretch">
@@ -628,7 +1355,8 @@
                     <div class="text-4xl font-black mb-8 italic">12<span class="text-2xl font-bold">万円〜</span></div>
                     <ul class="space-y-4 mb-10 text-slate-400 font-bold text-sm">
                         <li><span data-lucide="check-circle-2" class="w-5 h-5 inline mr-2 text-blue-600"></span> Basicプランの全機能</li>
-                        <li><span data-lucide="zap" class="w-4 h-4 inline mr-2 text-blue-500"></span> AIによる自動架電1000件付<br>※1000件以降は1架電48円</li>
+                        <li><span data-lucide="zap" class="w-4 h-4 inline mr-2 text-blue-500"></span> AIによる自動架電1000件付き</li>
+                        <center>※1000件以降は1架電につき48円</center>
                     </ul>
                     <button onclick="openModal('demo')" class="w-full py-4 border border-slate-600 rounded-2xl font-black hover:bg-slate-700">導入相談</button>
                 </div>
@@ -674,7 +1402,7 @@
                         <p class="text-sm font-bold text-slate-900 mb-2">株式会社ウイル（will.Inc）</p>
                         <div class="mt-4 mb-4">
                             <p class="text-sm font-black text-slate-900 flex items-center mb-1">
-                                <span data-lucide="phone" class="w-4 h-4 mr-2 text-blue-600"></span> TEL：0120-432-381
+                                <span data-lucide="phone" class="w-4 h-4 mr-2 text-blue-600"></span> TEL：0120ｰ35ｰ1191
                             </p>
                             <p class="text-[10px] font-bold text-slate-500 bg-slate-100 inline-block px-2 py-1 rounded">
                                 受付時間：平日 9:00～18:00
@@ -749,6 +1477,25 @@
                             </div>
                         </div>
 
+<div class="space-y-1">
+    <label class="text-xs font-black text-slate-400 ml-1 flex items-center">
+        アットリスをどこでお知りになりましたか？
+        <span class="ml-2 bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded text-[10px] tracking-normal">必須</span>
+    </label>
+    <select name="entry.source" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500 transition font-bold text-slate-900 appearance-none">
+        <option value="" disabled selected>選択してください</option>
+        <option value="X(旧Twitter)">X(旧Twitter)</option>
+        <option value="Instagram">Instagram</option>
+        <option value="YouTube">YouTube</option>
+        <option value="LINE">LINE</option>
+        <option value="DM">DM</option>
+        <option value="web検索">google,Yahoo等のweb検索</option>
+        <option value="AI検索">AIによる検索</option>
+        <option value="イベント・展示会">イベントや展示会</option>
+        <option value="その他">その他 紹介等</option>
+    </select>
+</div>
+
                         <div class="space-y-1">
                             <label class="text-xs font-black text-slate-400/60 ml-1 flex items-center">
                                 メッセージ
@@ -788,10 +1535,11 @@
                         <p class="text-slate-500 font-bold leading-relaxed text-sm">ご入力いただいたアドレス宛に、資料または<br>担当者よりご連絡を差し上げます。</p>
                     </div>
                     <div id="download-link-area" class="hidden pt-4 pb-2">
-                        <a href="https://drive.google.com/file/d/1GGbhIrbkCFgnL1xqV34QIjejvbE0kRyT/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="inline-flex items-center bg-emerald-500 text-white px-8 py-4 rounded-2xl font-black hover:bg-emerald-600 transition shadow-lg shadow-emerald-100">
-                            <span data-lucide="download" class="w-5 h-5 mr-2"></span> 資料を閲覧・ダウンロード
-                        </a>
-                    </div>
+    <!-- 変更後：リンクを削除し、メール誘導の文言に差し替え -->
+<p class="text-sm font-bold text-slate-600">
+  ご登録いただいたメールアドレス宛に<br>資料URLをお送りしました。
+</p>
+</div>
                     <button onclick="closeModal()" class="text-slate-400 font-black text-xs hover:text-slate-600 transition underline">閉じる</button>
                 </div>
             </div>
@@ -823,38 +1571,77 @@
             }
         }
         
-        /**
+/**
+ * 保守運用五則 第2条1項：設定の外部化 
+ * 変わりうる値（URLやID）を一箇所で管理します。
+ */
+const CONFIG = {
+    GAS_URL: "https://script.google.com/macros/s/AKfycbxtnASD3ZHmh2KpDYAUvWTbzeN6f-3FUlpEEHlj5-m0eFzyll5Dh8dowSG8BrV3A8U9/exec",
+    FIELDS: {
+        COMPANY: 'entry.1636064649',
+        NAME:    'entry.14815087',
+        EMAIL:   'entry.619079053',
+        TEL:     'entry.15373019',
+        MESSAGE: 'entry.345386200',
+        SOURCE:  'entry.source'
+    }
+};
+
+/**
  * GASのウェブアプリURLへデータを直接送信する関数
  */
 function submitToGas(e) {
-    e.preventDefault(); // 画面遷移を防止
+    e.preventDefault();
 
-    // スパムチェック（既存の関数）を確認
-    if (!handleFormSubmit()) return;
+    // スパムチェック確認
+    if (typeof handleFormSubmit === 'function' && !handleFormSubmit()) return;
 
     const form = document.getElementById('cta-form');
     const formData = new FormData(form);
-    
-    // 【重要】デプロイ時に取得したGASのURLをここに貼り付けてください
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyjNj0zrzcYMZ4m3A2Sz1uGlhEAOrj9Z-R9drW5qyljnsw0YoUdCIUXpwEUQlMa0y3M/exec";
 
-    // GAS側の「writeContact」で定義されている項目名に合わせてデータを整理
-    const data = {
-        type: "contact", // GASの条件分岐で使用
-        company: formData.get('entry.1636064649'), // 会社名
-        name: formData.get('entry.14815087'),      // 担当者名
-        email: formData.get('entry.619079053')     // メール
-    };
+    /**
+     * 保守運用五則 第7条3項：入力の検証 
+     * 必須項目が空、またはスペースのみでないか厳密にチェックします。
+     */
+    const requiredFields = [
+        { id: CONFIG.FIELDS.COMPANY, label: 'ご社名' },
+        { id: CONFIG.FIELDS.NAME,    label: 'ご担当者名' },
+        { id: CONFIG.FIELDS.EMAIL,   label: 'メールアドレス' },
+        { id: CONFIG.FIELDS.SOURCE,  label: 'お知りになったきっかけ' }
+    ];
 
-    // 送信ボタンを無効化
+    for (let field of requiredFields) {
+        const val = formData.get(field.id);
+        if (!val || val.trim() === "") {
+            alert(`${field.label}を入力（選択）してください。スペースのみの入力は無効です。`);
+            return;
+        }
+    }
+
+    // 送信ボタンの状態変更（保守運用五則 第8条1項：沈黙の禁止  に準ずるUX）
     const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true;
+    const originalBtnText = btn.innerText;
     btn.innerText = "送信中...";
 
-    // GASへPOSTリクエストを送信
-    fetch(GAS_URL, {
+    // 送信データの整理
+    const data = {
+        type:    formData.get('entry.871354082') || "contact", // download or demo
+        origin:  window.location.origin,
+        company: formData.get(CONFIG.FIELDS.COMPANY).trim(),
+        name:    formData.get(CONFIG.FIELDS.NAME).trim(),
+        email:   formData.get(CONFIG.FIELDS.EMAIL).trim(),
+        tel:     formData.get(CONFIG.FIELDS.TEL).trim(),
+        message: formData.get(CONFIG.FIELDS.MESSAGE).trim(),
+        source:  formData.get(CONFIG.FIELDS.SOURCE)
+    };
+
+    /**
+     * GASへPOSTリクエストを送信
+     */
+    fetch(CONFIG.GAS_URL, {
         method: "POST",
-        mode: "no-cors", // Google Apps ScriptへのPOSTで必要な設定
+        mode: "no-cors",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams(data).toString()
     })
@@ -863,13 +1650,63 @@ function submitToGas(e) {
         showSuccessState(); // 成功画面を表示
     })
     .catch(err => {
+        /**
+         * 保守運用五則 第8条2項：エラーの「翻訳」 
+         */
         console.error("Error:", err);
-        alert("送信エラーが発生しました。");
+        alert("通信エラーが発生しました。インターネット接続を確認し、再度お試しください。");
         btn.disabled = false;
-        btn.innerText = "情報を送信する";
+        btn.innerText = originalBtnText;
     });
 }
         
     </script>
+    
+    <script>
+(function() {
+    const targets = document.querySelectorAll('.roi-table td .text-blue-600, .roi-table td .text-blue-700');
+    const map = [
+        { el: null, target: 266, suffix: ' 件 / 時' },
+        { el: null, target: 3,   suffix: ' 時間' },
+        { el: null, target: 8,   suffix: ' 万円' },
+    ];
+    // ROI表の青い数値セルを取得
+    const cells = document.querySelectorAll('.ai-column');
+    if (!cells.length) return;
+
+    const countUp = (el, target) => {
+        const duration = 1200;
+        const start = performance.now();
+        const update = (now) => {
+            const p = Math.min((now - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - p, 3); // easeOutCubic
+            el.dataset.display = Math.round(ease * target);
+            // テキストノードを数値のみ更新（単位は維持）
+            const firstText = [...el.childNodes].find(n => n.nodeType === 3);
+            if (firstText) firstText.textContent = Math.round(ease * target) + ' ';
+            if (p < 1) requestAnimationFrame(update);
+        };
+        requestAnimationFrame(update);
+    };
+
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            cells.forEach((cell, i) => {
+    const vals = [266, 3, 8];
+    // tdそのものがtext-5xl/text-6xlを持っているため、querySelector不要
+    if (cell.matches('.text-5xl, .text-6xl') || cell.classList.contains('text-5xl') || cell.classList.contains('text-6xl')) {
+        countUp(cell, vals[i] ?? 0);
+    }
+});
+            obs.disconnect();
+        });
+    }, { threshold: 0.4 });
+
+    const table = document.querySelector('.roi-table');
+    if (table) obs.observe(table);
+})();
+</script>
+    
 </body>
 </html>
